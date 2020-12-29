@@ -1,0 +1,13 @@
+<h4 style="text-align: center;">
+{% if newslist.has_previous %}
+<a href="?page={{ newslist.previous_page_number }}">上一页</a>
+{% else %}
+上一页
+{% endif %}
+-{{ newslist.number }}/{{ newslist.paginator.num_pages }}-
+{% if newslist.has_next %}
+<a href="?page={{ newslist.next_page_number }}">下一页</a>
+{% else %}
+下一页
+{% endif %}
+</h4>

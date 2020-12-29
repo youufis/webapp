@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %} 首页 {% endblock %}
+{% block mainbody %}
+<div class="row clearfix">
+	{% for cateitem,catenews in catenewslist %}
+	<div class="col-md-3 column">
+		{{cateitem.name}}
+		<ul>
+			{% for newsitem in catenews %}
+			<li>
+				{% if newsitem.title|length > 14 %}
+				<a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:14}}…</a>
+				 {% else %}
+				 <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title}}</a>
+				 {% endif %}
+			</li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% endfor %}
+
+</div>
+{% for img in fname %}
+<div class="row clearfix">
+	<div class="col-md-3 column">
+		<img src="/media/images/{{img}}" class="img-thumbnail" />
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

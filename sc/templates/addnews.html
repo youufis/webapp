@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %} 动态发布{% endblock %}
+{% block mainbody %}
+{{ form.media }}
+<h4 align="center">
+    {% if messages %}
+    {% for message in messages %}
+     {{ message }}
+    {% endfor %}
+{% endif %}
+</h4>
+    {% csrf_token %}
+    <form action="" method="post" novalidate>
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+
+    <h4 align="center">
+        {% if messages %}
+        {% for message in messages %}
+         {{ message }}
+        {% endfor %}
+    {% endif %}
+    </h4>    
+{% endblock %}

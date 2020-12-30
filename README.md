@@ -13,8 +13,8 @@
 1、使用默认数据库sqlite3<br>
 
 四、运行测试：<br>
-在项目目录下运行：<br>
-webapp>python manage.py runserver:0.0.0.0:8000<br>
-打开浏览器：127.0.0.1:8000<br>
+1、进入项目目录：<br>
+2、运行：python manage.py runserver:0.0.0.0:8000<br>
+3、网站访问网址：127.0.0.1:8000<br>
 
 

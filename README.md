@@ -8,7 +8,6 @@
   python3.7<br>
   Django=3.13<br>
   DjangoUeditor=1.8.143<br>
-  Django DjangoUeditor<br>
   six=1.15.0 <br>
 三、注意事项<br>
 1、使用默认数据库sqlite3<br>

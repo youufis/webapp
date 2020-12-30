@@ -22,7 +22,7 @@ class news(models.Model):
     create_time = models.DateTimeField(verbose_name="时间", auto_now_add=True)
     create_date = models.DateField(verbose_name="日期", auto_now_add=True)
     status = models.CharField(verbose_name="审核", choices=(
-        ("未审核", "未审核"), ("已审核", "已审核")), max_length=10, default="已审核")
+        ("未审核", "未审核"), ("已审核", "已审核")), max_length=10, default="未审核")
 
 
     def __str__(self):
@@ -31,3 +31,17 @@ class news(models.Model):
     class Meta:
         verbose_name = "新闻"
         verbose_name_plural = verbose_name
+
+class ipinfo(models.Model):
+    caption=models.CharField(verbose_name="地址",max_length=20,default="IP")
+    ipaddr=models.GenericIPAddressField(verbose_name="IP地址")
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
+    create_date=models.DateTimeField(verbose_name="日期",auto_now_add=True)
+
+    def __str__(self):
+        return self.caption
+
+    class Meta:
+        verbose_name="地址"
+        verbose_name_plural=verbose_name
+    

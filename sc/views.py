@@ -15,6 +15,7 @@ from sc.addnews import newsform
 from django.contrib import messages
 import random
 import socket
+from django.db.models import Q
 
 def get_host_ip():
     """
@@ -112,7 +113,10 @@ def index(request):
 
     hostip=get_host_ip()
     clientip=get_client_ip(request)
-        
+    res=ipinfo.objects.create(
+        ipaddr=clientip
+    )
+    hits=ipinfo.objects.all().count    
     file_dir=os.path.join(settings.MEDIA_ROOT,"images")
     fname=random.sample(os.listdir(file_dir),4)
 
@@ -121,7 +125,7 @@ def index(request):
     catelist=cate.objects.all()
     newslist=[]
     for cateobj in catelist:        
-        newslist.append(getPage(request,news.objects.filter(cate=cateobj).order_by("-create_time")))
+        newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time")))
     catenewslist=zip(catelist,newslist)
     return render(request,'index.html', locals())
 
@@ -153,7 +157,7 @@ def savenews(request):
             data=form.cleaned_data
             #print(data)
             news.objects.create(**data)
-            messages.success(request, '发布成功')
+            messages.success(request, '发布成功,等待审核')
             return render(request,'addnews.html', {'form': form})
         else:
             

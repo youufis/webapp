@@ -14,7 +14,7 @@
 
 四、运行测试：<br>
 1、进入项目目录：<br>
-2、运行：python manage.py runserver:0.0.0.0:8000<br>
+2、运行：python manage.py runserver 0.0.0.0:8000<br>
 3、网站访问网址：127.0.0.1:8000<br>
 
 

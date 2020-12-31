@@ -146,6 +146,10 @@ def newscate(request,cateid):
     
 def newsdetail(request,newsid):    
     newsobj=news.objects.get(id=newsid)
+    newshits.objects.create(
+        news=newsobj
+    )
+    news_hits=newshits.objects.filter(news=newsobj).count
     return render(request, "newsdetail.html", locals())
 
 @csrf_exempt

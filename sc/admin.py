@@ -6,7 +6,7 @@ class cateadmin(admin.ModelAdmin):
 class newsadmin(admin.ModelAdmin):
     list_display=['id','title','cate','create_time','create_date','status']
 class ipinfoadmin(admin.ModelAdmin):
-    list_display=['id','caption','ipaddr','create_time','create_date']
+    list_display=['id','caption','ipaddr','create_time']
 
 admin.site.register(cate,cateadmin)
 admin.site.register(news,newsadmin)

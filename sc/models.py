@@ -36,7 +36,7 @@ class ipinfo(models.Model):
     caption=models.CharField(verbose_name="地址",max_length=20,default="IP")
     ipaddr=models.GenericIPAddressField(verbose_name="IP地址")
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
-    create_date=models.DateTimeField(verbose_name="日期",auto_now_add=True)
+    
 
     def __str__(self):
         return self.caption
@@ -44,4 +44,16 @@ class ipinfo(models.Model):
     class Meta:
         verbose_name="地址"
         verbose_name_plural=verbose_name
+
+class newshits(models.Model):
+    news=models.ForeignKey(news,verbose_name="新闻",on_delete=models.CASCADE)
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
+   
+    def __str__(self):
+        return self.news
+    class Meta:
+        verbose_name="新闻"
+        verbose_name_plural=verbose_name
+    
+
     

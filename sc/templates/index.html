@@ -23,7 +23,7 @@
 {% for img in fname %}
 <div class="row clearfix">
 	<div class="col-md-3 column">
-		<img src="/media/images/{{img}}" class="img-thumbnail" />
+		<a href="{% url 'imgdetect' img %}"><img src="/media/images/{{img}}" class="img-thumbnail" /></a>
 	</div>
 	{% endfor %}
 </div>

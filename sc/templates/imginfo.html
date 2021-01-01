@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} 图像识别{% endblock %}
+{% block mainbody %}
+<div class="row clearfix">
+    <div class="col-md-6 column">
+        <img width=320px,height=240px src="{{imgurl}}" />
+    </div>
+   
+    <div class="col-md-6 column">
+        <h4 align="center">图像识别结果</h4>
+        <ol>
+            {% for nameitem,scoreitem,baikeurlitem,baikedesitem in imginfo %}
+            <li>
+               {{nameitem}} ：{{scoreitem}}  ——百度百科：<a href="{{baikeurlitem|safe}}">{{nameitem}}</a>
+            </li><br>
+            {% endfor%}
+        </ol>
+    </div>
+</div>
+{% endblock %}

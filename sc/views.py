@@ -118,9 +118,11 @@ def index(request):
     )
     hits=ipinfo.objects.all().count    
     file_dir=os.path.join(settings.MEDIA_ROOT,"images")
-    fname=random.sample(os.listdir(file_dir),4)
 
-    #imgurl=os.path.join("/media/images",fname)
+    fname=random.sample(os.listdir(file_dir),4)
+   
+    #imgpath=(os.path.join(settings.MEDIA_ROOT,"images",f))
+
 
     catelist=cate.objects.all()
     newslist=[]
@@ -181,6 +183,44 @@ def search(request):
     res=ctx['keywords']
     newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"))
     return render(request,"result.html",locals())
+
+def imgdetect(request,img):
+    from aip import AipImageClassify
+    """ 这里输入你创建应用获得的三个参数"""
+    APP_ID = '15279946'
+    API_KEY = 'gFT6Iim8OPT51HQFIyGOmIra'
+    SECRET_KEY = 'Afi8SoHMFWSKYzi1QD78giGMyakVtr3k'
+    client = AipImageClassify(APP_ID, API_KEY, SECRET_KEY)
+
+    imgpath=os.path.join(settings.MEDIA_ROOT,"images",img)
+    imgurl="/media/images/"+img
+    with open(imgpath,"rb") as fp:
+        img=fp.read()
+    options={}
+    options["baike_num"] = 5
+    resultimg=client.advancedGeneral(img,options)
+    img_num=resultimg["result_num"]
+    sclist=[]
+    snamelist=[]
+    baikeurllist=[]
+    baikedeslist=[]
+    for num in range(img_num):
+        sc=str(round(resultimg["result"][num]["score"]*100,2))+"%"
+        sname=resultimg["result"][num]["keyword"]
+        if resultimg["result"][num]["baike_info"]:
+            baikeurl=resultimg["result"][num]["baike_info"]["baike_url"]
+            baikedes=resultimg["result"][num]["baike_info"]["description"]
+        else:
+            baikeurl="#"
+            baikedes=""
+        snamelist.append(sname)
+        sclist.append(sc)
+        baikeurllist.append(baikeurl)
+        baikedeslist.append(baikedes)
+    
+    imginfo=zip(snamelist,sclist,baikeurllist,baikedeslist)
+
+    return render(request,"imginfo.html",locals())
 
 
     

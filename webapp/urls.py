@@ -32,5 +32,6 @@ urlpatterns = [
     path('newsdetail/<newsid>',views.newsdetail,name="newsdetail"),
     path("addnews/",views.savenews,name="addnews"),
     path("search/",views.search,name="search"),
+    path("imgdetect/<img>",views.imgdetect,name="imgdetect"),
 
 ]

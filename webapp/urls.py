@@ -33,5 +33,7 @@ urlpatterns = [
     path("addnews/",views.savenews,name="addnews"),
     path("search/",views.search,name="search"),
     path("imgdetect/<img>",views.imgdetect,name="imgdetect"),
+    path("xlsform",views.xlsform,name="xlsform"),
+    path("uploadxls/",views.uploadxls,name="uploadxls"),
 
 ]

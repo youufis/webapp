@@ -16,6 +16,7 @@ from django.contrib import messages
 import random
 import socket
 from django.db.models import Q
+import pandas as pd
 
 def get_host_ip():
     """
@@ -70,13 +71,14 @@ def logIn(request):
             password = request.POST.get("password", '')
             if username != '' and password != '':
                 user = authenticate(username=username, password=password)
-                print(user)
+                #print(user)
+                
                 if user is not None:
                     login(request, user)
-                    print("登录成功！")
+                    #print("登录成功！")
                     return redirect(request.session['login_from'])
                 else:
-                    print(username, password, user)
+                    #print(username, password, user)
                     errormsg = '用户名或密码错误！'
                     return render(request, 'login.html', locals())
             else:
@@ -161,6 +163,7 @@ def savenews(request):
         form = newsform(request.POST)
         if form.is_valid():
             data=form.cleaned_data
+            data["user"]=User.objects.get(username=request.user.username)
             #print(data)
             news.objects.create(**data)
             messages.success(request, '发布成功,等待审核')
@@ -222,5 +225,38 @@ def imgdetect(request,img):
 
     return render(request,"imginfo.html",locals())
 
+@csrf_exempt
+@login_required
+def uploadxls(request):
+    if request.method=="POST":
+        f=request.FILES['file']
+        filepath = os.path.join(settings.MEDIA_ROOT,"upfiles",f.name)
+        ext=f.name.split(".")[-1].lower()
+        if ext not in ["xls","xlsx","csv"]:
+            return render(request,'uploadxls.html',{"error":"上传图像类型错误"})
+        else:
+            with open(filepath,"wb") as fp:
+                for info in f.chunks():
+                    fp.write(info)
+            
+            data=pd.read_excel(filepath,sheet_name="Sheet1")
+            row_count=data.shape[0]
+            if row_count <1:
+                return render(request,'uploadxls.html',{"error":"无可导入数据"})
+            else:
+                for row in range(row_count):
+                    row_data=data.loc[row]
+                    #print(row_data[0],row_data[1],row_data[2])
+                    if User.objects.filter(username=row_data[0]).exists() == False:
+                        user = User.objects.create_user(
+                            username=row_data[0], email=row_data[1], password=str(row_data[2]))
+                        user.save()
+                    
+                msg="数据导入成功"
+                return render(request,'uploadxls.html',locals())    
 
+@login_required
+def xlsform(request):
+    
+    return render(request,"uploadxls.html",locals())
     

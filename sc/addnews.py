@@ -7,10 +7,10 @@ from DjangoUeditor.forms import UEditorField, UEditorModelForm
 
 catelist = cate.objects.all()
 
-
 class newsform(forms.Form):
     cate = forms.ModelChoiceField(
         queryset=catelist, label="类别", initial=catelist.first().name)
+  
     title = forms.CharField(max_length=100, label="标题",
                             widget=widgets.TextInput(attrs={'size': '80'}))
     content = forms.CharField(label="内容", widget=UEditorWidget(

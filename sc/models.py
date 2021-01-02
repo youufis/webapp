@@ -19,6 +19,7 @@ class news(models.Model):
     title = models.CharField(verbose_name="标题", max_length=100)
     content = UEditorField(verbose_name='内容', width=600, height=400,imagePath='images/',filePath='upfiles/',default='')
     cate = models.ForeignKey(cate, verbose_name="分类", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='用户',on_delete=models.CASCADE,blank=True,null=True)
     create_time = models.DateTimeField(verbose_name="时间", auto_now_add=True)
     create_date = models.DateField(verbose_name="日期", auto_now_add=True)
     status = models.CharField(verbose_name="审核", choices=(

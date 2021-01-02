@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %} 批量导入数据 {% endblock %}
+{% block mainbody %}
+<form role="form" action="uploadxls/" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+         <label for="exampleInputFile">选择导入模板文件(xls,xlsx,csv)</label><input type="file" name='file' />
+        <p class="help-block">
+            <a href="/media/xlsx/导入模板.xlsx">下载导入模板文件</a>
+        </p>
+    </div>
+   <button type="submit" class="btn btn-default">批量导入</button>
+   <h4 style="color:red">{{error}}{{msg}}</h4>
+</form>
+{% endblock %}

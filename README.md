@@ -13,6 +13,7 @@
   DjangoUeditor=1.8.143<br>
   six=1.15.0 <br>
   baidu-aip=2.2.18.0<br>
+  pandas=1.2.0
 三、注意事项<br>
 1、使用默认数据库sqlite3<br>
 四、运行测试：<br>

@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.http import HttpResponse
 from django.contrib.auth import login,logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Group
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
@@ -70,12 +70,13 @@ def logIn(request):
             username = request.POST.get("username", '')
             password = request.POST.get("password", '')
             if username != '' and password != '':
-                user = authenticate(username=username, password=password)
-                #print(user)
-                
+                user = authenticate(username=username, password=password)                               
                 if user is not None:
                     login(request, user)
-                    #print("登录成功！")
+                    #print("登录成功！",user)                    
+                    request.session["username"]=username
+                    #print(request.session["username"])
+                    #response.set_cookie('username',username) #使用response（用户自己电脑）保存的cookie来验证用户登录
                     return redirect(request.session['login_from'])
                 else:
                     #print(username, password, user)
@@ -101,8 +102,11 @@ def register(request):
             if User.objects.filter(username=username).exists() == False:
                 # 注册
                 user = User.objects.create_user(
-                    username=username, email=email, password=password)
+                    username=username, email=email, password=password) # is_staff=True激活用户登录后台
                 user.save()
+                #user.groups.add(name='publisher') #增加用户到publisher组（管理员后台中定义分配）（有管理自己发布内容的权限）
+                my_group = Group.objects.get(name='publisher')
+                my_group.user_set.add(user)
                 # 登录
                 user.backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request, user)
@@ -187,6 +191,7 @@ def search(request):
     newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"))
     return render(request,"result.html",locals())
 
+#调用百度AI图像识别
 def imgdetect(request,img):
     from aip import AipImageClassify
     """ 这里输入你创建应用获得的三个参数"""
@@ -257,6 +262,17 @@ def uploadxls(request):
 
 @login_required
 def xlsform(request):
-    
     return render(request,"uploadxls.html",locals())
+
+@login_required
+def usernews(request):
+    username= request.session["username"]
+    userobj=User.objects.get(username=username)
+    newslist=getPage(request,news.objects.filter(user=userobj).order_by('-create_time'))
+    return render(request, "usernews.html",locals())
+
+def delnews(request,newsid):
+    ret=news.objects.filter(id=newsid).delete()
+    return redirect('/usernews/')
+    #return render(request, "usernews.html",locals())
     

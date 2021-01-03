@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %} {{username}} -内容管理 {% endblock %}
+{% block mainbody %}
+
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                       序号
+                    </th>
+                    <th>
+                        标题
+                    </th>
+                    <th>
+                        时间
+                    </th>
+                    <th>
+                        编辑
+                    </th>
+                    <th>
+                        删除
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for newsitem in newslist%}
+                <tr>
+                    <td>
+                        {{newsitem.id}}
+                    </td>
+                    <td>
+                        {{newsitem.title|truncatechars:20}}
+                    </td>
+                    <td>
+                        {{newsitem.create_time}}
+                    </td>
+                    <td>
+                        <a href="#">编辑</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'delnews' newsitem.id %}">删除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="panel-footer">
+            {% include 'pagination.html' %}
+        </div>
+    </div>
+{% endblock %}

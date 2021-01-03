@@ -47,6 +47,9 @@
 						   <li>
 							   <a  href="{% url 'addnews' %}" ">内容发布</a>
 						   </li>
+						   <li>
+							<a  href="{% url 'usernews' %}" ">内容管理</a>
+							</li>
 						   {% if user.is_superuser %}
 						   <li>
 							   <a  href="{% url 'xlsform' %}">用户导入</a>

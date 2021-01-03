@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %} {{username}} -内容修改 {% endblock %}
+{% block mainbody %}
+{% load static %}
+<script src="{% static 'ueditor/ueditor.config.js'%}"></script>
+<script src="{% static 'ueditor/ueditor.all.min.js'%}"></script>
+
+{{ form.media }}
+
+<form action="{% url 'addnews' %}" method="post">
+    {% csrf_token %}
+    <input type="text" id="newsid" name="newsid" hidden=True value="{{newsid}}" />
+    {{ content_form }}
+    
+    <button type="submit">保存</button>
+</form>
+<script>
+    {% if newsitem %}
+    document.getElementById("id_title").value='{{ newsitem.title }}';
+    //如果文章有内容就填充在content_form中
+    document.getElementById("id_content").value='{{ newsitem.content|safe }}';
+    {% endif %}
+</script>
+{% endblock %}

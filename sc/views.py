@@ -169,8 +169,11 @@ def savenews(request):
         if form.is_valid():
             data=form.cleaned_data
             data["user"]=User.objects.get(username=request.user.username)
-            #print(data)
-            news.objects.create(**data)
+            newsid=request.POST.get("newsid")
+            if news.objects.filter(id=newsid).exists():
+                news.objects.filter(id=newsid).update(**data)
+            else:
+                news.objects.get_or_create(**data)
             messages.success(request, '发布成功,等待审核')
             return render(request,'addnews.html', {'form': form})
         else:
@@ -276,5 +279,22 @@ def delnews(request,newsid):
     ret=news.objects.filter(id=newsid).delete()
    
     return redirect('/usernews/')
+
+@csrf_exempt
+@login_required
+def editnews(request,newsid):
+    newsobj=news.objects.get(id=newsid)
+    context={
+        'newsid':newsid,
+        'newsitem':newsobj,
+        'content_form':newsform().as_p
+    }
+    if request.method=="GET":
+        return render(request, 'editnews.html', context=context)
+    elif request.method=="POST":
+        news.objects.filter(id=newsid).update(**request.POST)
+        return  redirect('/usernews/')
+
+    
    
     

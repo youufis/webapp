@@ -38,7 +38,7 @@
                         {{newsitem.create_time}}
                     </td>
                     <td>
-                        <a href="#">编辑</a>
+                        <a href="{% url 'editnews' newsitem.id %}">编辑</a>
                     </td>
                     <td>
                         <a href="{% url 'delnews' newsitem.id %}">删除</a>

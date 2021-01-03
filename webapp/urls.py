@@ -37,5 +37,6 @@ urlpatterns = [
     path("uploadxls/",views.uploadxls,name="uploadxls"),
     path("usernews/",views.usernews,name="usernews"),
     path("delnews/<int:newsid>",views.delnews,name="delnews"),
+    path("editnews/<int:newsid>",views.editnews,name="editnews")
 
 ]

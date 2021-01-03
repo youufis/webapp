@@ -18,6 +18,7 @@ import socket
 from django.db.models import Q
 import pandas as pd
 
+
 def get_host_ip():
     """
     查询本机ip地址
@@ -273,6 +274,7 @@ def usernews(request):
 
 def delnews(request,newsid):
     ret=news.objects.filter(id=newsid).delete()
+   
     return redirect('/usernews/')
-    #return render(request, "usernews.html",locals())
+   
     

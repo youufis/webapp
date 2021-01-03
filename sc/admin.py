@@ -5,6 +5,7 @@ class cateadmin(admin.ModelAdmin):
     list_display=['id','name']
     list_per_page = 20
 class newsadmin(admin.ModelAdmin):
+    exclude = ('user',)#排除
     list_display=['id','title','cate','user','create_time','create_date','status']
     list_per_page = 20
 
@@ -14,6 +15,14 @@ class newsadmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return qs
         return qs.filter(user=request.user)
+
+    #自动保存登录用户
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.user = request.user
+            obj.save()
+ 
+    
 
 class ipinfoadmin(admin.ModelAdmin):
     list_display=['id','caption','ipaddr','create_time']

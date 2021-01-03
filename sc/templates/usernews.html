@@ -32,7 +32,7 @@
                         {{newsitem.id}}
                     </td>
                     <td>
-                        {{newsitem.title|truncatechars:20}}
+                        <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:20}}</a>
                     </td>
                     <td>
                         {{newsitem.create_time}}

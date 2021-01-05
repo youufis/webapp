@@ -1,4 +1,5 @@
 网站内容发布管理系统<br>
+演示网址：http://youufis.oicp.net 
 一、实现内容：<br>
 1、后台（管理端帐号和密码：root/root）<br>
 2、增删改查功能<br>

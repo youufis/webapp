@@ -32,7 +32,11 @@
                         {{newsitem.id}}
                     </td>
                     <td>
-                        <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:20}}</a>
+                        {% if newsitem.title|length > 20%}
+                        <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:20}}……</a>
+                        {% else %}
+                        <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title}}</a>
+                        {% endif %}
                     </td>
                     <td>
                         {{newsitem.create_time}}

@@ -134,12 +134,12 @@ def index(request):
     catelist=cate.objects.all()
     newslist=[]
     for cateobj in catelist:        
-        newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time")))
+        newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time"),6))
     catenewslist=zip(catelist,newslist)
     return render(request,'index.html', locals())
 
-def getPage(request, news_list):
-    paginator = Paginator(news_list, 6)
+def getPage(request, news_list,pagenum):
+    paginator = Paginator(news_list, pagenum)
     try:
         page = int(request.GET.get('page', 1))
         news_list = paginator.page(page)
@@ -150,7 +150,7 @@ def getPage(request, news_list):
 def newscate(request,cateid):
     catelist=cate.objects.all()
     cateobj=cate.objects.get(id=cateid)
-    newslist=getPage(request,news.objects.filter(cate=cateobj).order_by('-create_time'))
+    newslist=getPage(request,news.objects.filter(cate=cateobj).order_by('-create_time'),6)
     return render(request, "cate.html", locals())
     
 def newsdetail(request,newsid):    
@@ -172,10 +172,12 @@ def savenews(request):
             newsid=request.POST.get("newsid")
             if news.objects.filter(id=newsid).exists():
                 news.objects.filter(id=newsid).update(**data)
+                messages.success(request, '修改成功')
+                #return redirect("/usernews/") #根据需要可重定向页面
             else:
                 news.objects.get_or_create(**data)
-            messages.success(request, '发布成功,等待审核')
-            return render(request,'addnews.html', {'form': form})
+                messages.success(request, '发布成功,等待审核')
+            return render(request,'addnews.html', {'form': form}) 
         else:
             
             #print(form.errors)
@@ -192,7 +194,7 @@ def search(request):
     if request.POST:
         ctx['keywords'] = request.POST['q']
     res=ctx['keywords']
-    newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"))
+    newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"),10)
     return render(request,"result.html",locals())
 
 #调用百度AI图像识别
@@ -269,15 +271,17 @@ def xlsform(request):
     return render(request,"uploadxls.html",locals())
 
 @login_required
-def usernews(request):
-    username= request.session["username"]
-    userobj=User.objects.get(username=username)
-    newslist=getPage(request,news.objects.filter(user=userobj).order_by('-create_time'))
-    return render(request, "usernews.html",locals())
+def usernews(request):    
+    if request.session.get('username'):
+        username= request.session["username"]
+        userobj=User.objects.get(username=username)
+        newslist=getPage(request,news.objects.filter(user=userobj).order_by('-create_time'),8)
+        return render(request, "usernews.html",locals())
+    else:
+        return redirect("/logout/")
 
 def delnews(request,newsid):
     ret=news.objects.filter(id=newsid).delete()
-   
     return redirect('/usernews/')
 
 @csrf_exempt
@@ -292,7 +296,7 @@ def editnews(request,newsid):
     if request.method=="GET":
         return render(request, 'editnews.html', context=context)
     elif request.method=="POST":
-        news.objects.filter(id=newsid).update(**request.POST)
+        #news.objects.filter(id=newsid).update(**request.POST)
         return  redirect('/usernews/')
 
     

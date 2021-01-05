@@ -11,12 +11,16 @@
     {% csrf_token %}
     <input type="text" id="newsid" name="newsid" hidden=True value="{{newsid}}" />
     {{ content_form }}
-    
     <button type="submit">保存</button>
 </form>
 <script>
     {% if newsitem %}
     document.getElementById("id_title").value='{{ newsitem.title }}';
+    var obj= document.getElementById("id_cate");
+    for (i=0;i<obj.length;i++){
+        if(obj[i].text=='{{ newsitem.cate }}')
+            obj[i].selected=true;
+    }
     //如果文章有内容就填充在content_form中
     document.getElementById("id_content").value='{{ newsitem.content|safe }}';
     {% endif %}

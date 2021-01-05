@@ -17,7 +17,7 @@ import random
 import socket
 from django.db.models import Q
 import pandas as pd
-
+import threading
 
 def get_host_ip():
     """
@@ -115,21 +115,35 @@ def register(request):
     return redirect(request.session['login_from'], '/')
 
 ##########################################    
-         
-def index(request):
 
+def imgtoaudit():
+    file_dir=os.path.join(settings.MEDIA_ROOT,"images")
+    fname=random.sample(os.listdir(file_dir),4)    
+    for img in fname:             
+        if imgaudit(img) in [1]: #图像审核通过存入图像库
+            #fname[fname.index(img)]="audit.jpg"
+            ret=auditimg.objects.get_or_create(
+                imgname=img,
+                )  
+def timgtoaudit():
+    t = threading.Thread(target=imgtoaudit)       
+    t.setDaemon(True)
+    t.start()
+
+def index(request):
+    timgtoaudit() #开启线程进行图像审核
+    fname=[]
     hostip=get_host_ip()
     clientip=get_client_ip(request)
     res=ipinfo.objects.create(
         ipaddr=clientip
     )
     hits=ipinfo.objects.all().count    
-    file_dir=os.path.join(settings.MEDIA_ROOT,"images")
-
-    fname=random.sample(os.listdir(file_dir),4)
-   
+    fnameobj=auditimg.objects.all().order_by('?')[:4]    #图像库随机取4个
+    for f in fnameobj:
+        fname.append(f.imgname)
     #imgpath=(os.path.join(settings.MEDIA_ROOT,"images",f))
-
+   
 
     catelist=cate.objects.all()
     newslist=[]
@@ -196,6 +210,23 @@ def search(request):
     res=ctx['keywords']
     newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"),10)
     return render(request,"result.html",locals())
+
+#调用百度内容审核
+#conclusion	String	N	审核结果，可取值描述：合规、不合规、疑似、审核失败
+#conclusionType	uint64	N	审核结果类型，可取值1、2、3、4，分别代表1：合规，2：不合规，3：疑似，4：审核失败
+def imgaudit(img):    
+    from aip import AipContentCensor
+    APP_ID = '23489175'
+    API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
+    SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
+    client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
+
+    imgpath=os.path.join(settings.MEDIA_ROOT,"images",img)    
+    with open(imgpath,"rb") as fp:
+        img=fp.read()
+    resultimg = client.imageCensorUserDefined(img)    
+    #print(resultimg)
+    return resultimg['conclusionType']
 
 #调用百度AI图像识别
 def imgdetect(request,img):

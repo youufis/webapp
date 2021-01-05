@@ -14,6 +14,16 @@ class cate(models.Model):
         verbose_name = "分类名称"
         verbose_name_plural = verbose_name
 
+#存放已审核过的图片文件名
+class auditimg(models.Model):
+    imgname=models.CharField(verbose_name="文件名",max_length=50)   
+
+    def __str__(self):
+        return self.imgname
+    class Meta:
+        verbose_name="图像"
+        verbose_name_plural=verbose_name
+
 class news(models.Model):
     title = models.CharField(verbose_name="标题", max_length=100)
     content = UEditorField(verbose_name='内容', width=600, height=400,imagePath='images/',filePath='upfiles/',default='')

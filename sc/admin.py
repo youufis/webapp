@@ -23,11 +23,7 @@ class newsadmin(admin.ModelAdmin):
             return qs
         return qs.filter(user=request.user)
 
-    def instance_forms(self):
-        super().instance_forms()
-    # 判断是否为新建操作，新建操作才会设置status的默认值
-        if not self.org_obj:
-            self.form_obj.initial['status']="已审核"
+    
 
     #自动保存登录用户
     def save_model(self, request, obj, form, change):
@@ -35,6 +31,7 @@ class newsadmin(admin.ModelAdmin):
             obj.user = request.user
             obj.save()
  
+
     search_fields = ['title','user__username','status'] # 按文章title和用户user搜索
 
 class ipinfoadmin(admin.ModelAdmin):

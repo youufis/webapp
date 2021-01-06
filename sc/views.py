@@ -120,16 +120,20 @@ def register(request):
 def imgtoaudit():
     file_dir=os.path.join(settings.MEDIA_ROOT,"images")
     fname=random.sample(os.listdir(file_dir),4)    
-    for img in fname:             
-        if imgaudit(img) in [1]: #图像审核通过存入图像库
-            #fname[fname.index(img)]="audit.jpg"
-            ret=auditimg.objects.get_or_create(
-                imgname=img,
-                )
-        else: #不合规移动回收站
-            fsrc=os.path.join(settings.MEDIA_ROOT,"images",img)
-            fdst=os.path.join(settings.MEDIA_ROOT,"recycle",img)
-            shutil.move(fscr,fdst)
+    
+    for img in fname:    
+        fimg=auditimg.objects.filter(imgname=img)  #审核过的图像不用再审
+        if not fimg.exists():   
+            print(img)   
+            if imgaudit(img) in ['合规']: #图像审核通过存入图像库
+                #fname[fname.index(img)]="audit.jpg"
+                ret=auditimg.objects.get_or_create(
+                    imgname=img,
+                    )
+            else: #不合规移动回收站
+                fsrc=os.path.join(settings.MEDIA_ROOT,"images",img)
+                fdst=os.path.join(settings.MEDIA_ROOT,"recycle",img)
+                shutil.move(fsrc,fdst)
             
 
 #定义一个图象审核线程
@@ -238,9 +242,10 @@ def imgaudit(img):
     imgpath=os.path.join(settings.MEDIA_ROOT,"images",img)    
     with open(imgpath,"rb") as fp:
         img=fp.read()
-    resultimg = client.imageCensorUserDefined(img)    
+    resultimg = client.imageCensorUserDefined(img)  
     #print(resultimg)
-    return resultimg['conclusionType']
+    return resultimg['conclusion']
+
 
 #调用百度AI图像识别
 def imgdetect(request,img):

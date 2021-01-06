@@ -69,9 +69,13 @@ class ipinfoadmin(admin.ModelAdmin):
     list_display=['id','caption','ipaddr','create_time']
     list_per_page = 20
 
-
+#已审核图像信息
+class auditimgadmin(admin.ModelAdmin):
+    list_display=['id','imgname']
+    list_per_page = 20
 
 admin.site.register(cate,cateadmin)
 admin.site.register(news,newsadmin)
 admin.site.register(ipinfo,ipinfoadmin)
+admin.site.register(auditimg,auditimgadmin)
 

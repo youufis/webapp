@@ -6,7 +6,7 @@ from DjangoUeditor.widgets import UEditorWidget
 from DjangoUeditor.forms import UEditorField, UEditorModelForm
 
 catelist = cate.objects.all()
-
+#普通用户发布和修改内容表单
 class newsform(forms.Form):
     cate = forms.ModelChoiceField(
         queryset=catelist, label="类别", initial=catelist.first().name)

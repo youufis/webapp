@@ -5,13 +5,12 @@ from DjangoUeditor.models import UEditorField
 
 
 class cate(models.Model):
-    name = models.CharField(verbose_name="分类名称", max_length=20)
-
+    name = models.CharField(verbose_name="分类", max_length=20)
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = "分类名称"
+        verbose_name = "分类"
         verbose_name_plural = verbose_name
 
 #存放已审核过的图片文件名
@@ -64,6 +63,7 @@ class newshits(models.Model):
     class Meta:
         verbose_name="新闻"
         verbose_name_plural=verbose_name
+
     
 
     

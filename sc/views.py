@@ -18,6 +18,7 @@ import socket
 from django.db.models import Q
 import pandas as pd
 import threading
+import shutil
 
 def get_host_ip():
     """
@@ -40,7 +41,7 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
     return ip
 
-
+#生成验证码
 def check_code(request):
     import io
     from . import check_code as CheckCode
@@ -115,7 +116,7 @@ def register(request):
     return redirect(request.session['login_from'], '/')
 
 ##########################################    
-
+#图像审核
 def imgtoaudit():
     file_dir=os.path.join(settings.MEDIA_ROOT,"images")
     fname=random.sample(os.listdir(file_dir),4)    
@@ -124,12 +125,20 @@ def imgtoaudit():
             #fname[fname.index(img)]="audit.jpg"
             ret=auditimg.objects.get_or_create(
                 imgname=img,
-                )  
+                )
+        else: #不合规移动回收站
+            fsrc=os.path.join(settings.MEDIA_ROOT,"images",img)
+            fdst=os.path.join(settings.MEDIA_ROOT,"recycle",img)
+            shutil.move(fscr,fdst)
+            
+
+#定义一个图象审核线程
 def timgtoaudit():
     t = threading.Thread(target=imgtoaudit)       
     t.setDaemon(True)
     t.start()
 
+#首页
 def index(request):
     timgtoaudit() #开启线程进行图像审核
     fname=[]
@@ -152,6 +161,7 @@ def index(request):
     catenewslist=zip(catelist,newslist)
     return render(request,'index.html', locals())
 
+#分页
 def getPage(request, news_list,pagenum):
     paginator = Paginator(news_list, pagenum)
     try:
@@ -161,12 +171,14 @@ def getPage(request, news_list,pagenum):
         news_list = paginator.page(1)
     return news_list
 
+#内容类别页
 def newscate(request,cateid):
     catelist=cate.objects.all()
     cateobj=cate.objects.get(id=cateid)
     newslist=getPage(request,news.objects.filter(cate=cateobj).order_by('-create_time'),6)
     return render(request, "cate.html", locals())
-    
+
+ #内容详细页
 def newsdetail(request,newsid):    
     newsobj=news.objects.get(id=newsid)
     newshits.objects.create(
@@ -175,6 +187,7 @@ def newsdetail(request,newsid):
     news_hits=newshits.objects.filter(news=newsobj).count
     return render(request, "newsdetail.html", locals())
 
+#普通用户发布和修改内容
 @csrf_exempt
 @login_required
 def savenews(request):    
@@ -183,7 +196,7 @@ def savenews(request):
         if form.is_valid():
             data=form.cleaned_data
             data["user"]=User.objects.get(username=request.user.username)
-            newsid=request.POST.get("newsid")
+            newsid=request.POST.get("newsid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
             if news.objects.filter(id=newsid).exists():
                 news.objects.filter(id=newsid).update(**data)
                 messages.success(request, '修改成功')
@@ -191,7 +204,7 @@ def savenews(request):
             else:
                 news.objects.get_or_create(**data)
                 messages.success(request, '发布成功,等待审核')
-            return render(request,'addnews.html', {'form': form}) 
+            return render(request,'addnews.html', {'form': form}) #
         else:
             
             #print(form.errors)
@@ -202,7 +215,7 @@ def savenews(request):
         form = newsform()
         return render(request,'addnews.html', {'form': form})
         
-
+#标题搜索
 def search(request):
     ctx ={}
     if request.POST:
@@ -216,6 +229,7 @@ def search(request):
 #conclusionType	uint64	N	审核结果类型，可取值1、2、3、4，分别代表1：合规，2：不合规，3：疑似，4：审核失败
 def imgaudit(img):    
     from aip import AipContentCensor
+    #可以自行百度ai申请
     APP_ID = '23489175'
     API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
     SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
@@ -267,6 +281,7 @@ def imgdetect(request,img):
 
     return render(request,"imginfo.html",locals())
 
+#excel批量导入用户
 @csrf_exempt
 @login_required
 def uploadxls(request):
@@ -275,7 +290,7 @@ def uploadxls(request):
         filepath = os.path.join(settings.MEDIA_ROOT,"upfiles",f.name)
         ext=f.name.split(".")[-1].lower()
         if ext not in ["xls","xlsx","csv"]:
-            return render(request,'uploadxls.html',{"error":"上传图像类型错误"})
+            return render(request,'uploadxls.html',{"error":"上传文件类型错误"})
         else:
             with open(filepath,"wb") as fp:
                 for info in f.chunks():
@@ -297,10 +312,12 @@ def uploadxls(request):
                 msg="数据导入成功"
                 return render(request,'uploadxls.html',locals())    
 
+#excel文件导入页
 @login_required
 def xlsform(request):
     return render(request,"uploadxls.html",locals())
 
+#普通用户内容页
 @login_required
 def usernews(request):    
     if request.session.get('username'):
@@ -311,24 +328,26 @@ def usernews(request):
     else:
         return redirect("/logout/")
 
+#删除内容
 def delnews(request,newsid):
     ret=news.objects.filter(id=newsid).delete()
     return redirect('/usernews/')
 
+#编辑内容
 @csrf_exempt
 @login_required
 def editnews(request,newsid):
     newsobj=news.objects.get(id=newsid)
     context={
-        'newsid':newsid,
+        'newsid':newsid,#内容id,传值到内容修改
         'newsitem':newsobj,
-        'content_form':newsform().as_p
+        'content_form':newsform().as_p #调用发布和修改内容表单
     }
     if request.method=="GET":
         return render(request, 'editnews.html', context=context)
     elif request.method=="POST":
         #news.objects.filter(id=newsid).update(**request.POST)
-        return  redirect('/usernews/')
+        return  redirect('/usernews/') #编辑成功后重定向到用户内容页
 
     
    

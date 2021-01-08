@@ -149,6 +149,7 @@ def timgtoaudit():
 def index(request):
     timgtoaudit() #开启线程进行图像审核
     fname=[]
+    fnamenew=[]
     hostip=get_host_ip()
     clientip=get_client_ip(request)
     res=ipinfo.objects.create(
@@ -158,7 +159,15 @@ def index(request):
     fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
     for f in fnameobj:
         fname.append(f.imgname)
+    
+    #最新图片
+    fnamenewobj=auditimg.objects.all().order_by("-id")[:3]
+    for f in fnamenewobj:
+        fnamenew.append(f.imgname)
+
     #imgpath=(os.path.join(settings.MEDIA_ROOT,"images",f))
+
+
    
     #取出所有类别
     catelist=cate.objects.all()
@@ -168,14 +177,15 @@ def index(request):
         newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time"),6))
     catenewslist=zip(catelist,newslist)
     #最新内容top6
-    newstop6=news.objects.all().order_by("-create_time")[:6]
+    newstop6=news.objects.all().order_by("-create_time")[:16]
     #最新热点top6
     newshit=newshits.objects.values("news").annotate(total=Count("id"))
-    newshit= sorted(newshit, key=lambda k: k['total'],reverse = False)[0:6]
+    newshit= sorted(newshit, key=lambda k: k['total'],reverse = False)[0:16]
     idhotlist=[]
     for idhot in newshit:
         idhotlist.append(idhot["news"])
-    newshot6=news.objects.filter(id__in=idhotlist)
+    #print(idhotlist)
+    newshot6=news.objects.filter(id__in=idhotlist).order_by('-id')
     return render(request,'index.html', locals())
 
 #分页

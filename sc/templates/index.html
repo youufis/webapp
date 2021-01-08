@@ -2,7 +2,37 @@
 {% block title %} 首页 {% endblock %}
 {% block mainbody %}
 
+
 <div class="row clearfix">
+	<div class="col-md-4 column">
+		最新图片
+		<div id="myCarousel" class="carousel slide">
+			<!-- 轮播（Carousel）指标 -->
+			<ol class="carousel-indicators">
+				<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+				<li data-target="#myCarousel" data-slide-to="1"></li>
+				<li data-target="#myCarousel" data-slide-to="2"></li>
+			</ol>   
+			<!-- 轮播（Carousel）项目 -->
+			<div class="carousel-inner">
+				{% for img in fnamenew %}
+				<div {% ifequal forloop.counter 1 %} class="item active" {% else %} class="item" {% endifequal%}>
+					<a href="{% url 'imgdetect' img %}"><img  src="/media/images/{{img}}" class="img-thumbnail" /></a>
+				</div>
+				{% endfor %}
+			</div>
+			<!-- 轮播（Carousel）导航 -->
+			<a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				<span class="sr-only">Previous</span>
+			</a>
+			<a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</div> 
+
+	</div>
 
 	<div class="col-md-4 column">
 		最新动态

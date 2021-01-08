@@ -223,7 +223,7 @@ def savenews(request):
             else:
                 news.objects.get_or_create(**data)
                 messages.success(request, '发布成功,等待审核')
-            return render(request,'addnews.html', {'form': form}) #
+            return render(request,'addnews.html', {'form': form,'catelist':catelist}) #
         else:
             
             #print(form.errors)

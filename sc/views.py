@@ -157,12 +157,15 @@ def index(request):
         fname.append(f.imgname)
     #imgpath=(os.path.join(settings.MEDIA_ROOT,"images",f))
    
-
+    #取出所有类别
     catelist=cate.objects.all()
     newslist=[]
+    #按类别返回内容
     for cateobj in catelist:        
         newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time"),6))
     catenewslist=zip(catelist,newslist)
+    #最新内容top6
+    newstop6=news.objects.all().order_by("-create_time")[:6]
     return render(request,'index.html', locals())
 
 #分页

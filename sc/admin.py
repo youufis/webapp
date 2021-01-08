@@ -14,7 +14,7 @@ admin.site.site_header = "控制台"
 
 #分类
 class cateadmin(admin.ModelAdmin):
-    list_display=['name','id']
+    list_display=['id','name']
     list_per_page = 5
     #inlines = [newsInline, ]
 

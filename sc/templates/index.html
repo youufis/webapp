@@ -19,9 +19,24 @@
 		</ul>
 	</div>
 
+	<div class="col-md-4 column">
+		热点新闻
+		<ul>
+			{% for newsitem in newshot6 %}
+			<li>
+				{% if newsitem.title|length > 14 %}
+				<a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:14}}…({{newsitem.create_time|date:"Y/m/j"}})</a>
+				 {% else %}
+				 <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title}}({{newsitem.create_time|date:"Y/m/j"}})</a>
+				 {% endif %}
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+
 	{% for cateitem,catenews in catenewslist %}
 	<div class="col-md-4 column">
-		<a href="{% url 'newscate' cateitem.id %}">{{cateitem.name}}</a>
+		<a href="{% url 'newscate' cateitem.id%}">{{cateitem.name}}</a>
 		<ul>
 			{% for newsitem in catenews %}
 			<li>

@@ -55,13 +55,13 @@ class ipinfo(models.Model):
         verbose_name_plural=verbose_name
 
 class newshits(models.Model):
-    news=models.ForeignKey(news,verbose_name="新闻",on_delete=models.CASCADE)
+    news=models.ForeignKey(news,verbose_name="热度",on_delete=models.CASCADE)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
    
     def __str__(self):
         return self.news
     class Meta:
-        verbose_name="新闻"
+        verbose_name="热度"
         verbose_name_plural=verbose_name
 
     

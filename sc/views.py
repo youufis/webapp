@@ -19,6 +19,7 @@ from django.db.models import Q
 import pandas as pd
 import threading
 import shutil
+from django.db.models import Avg,Max,Min,Count,Sum  #   引入函数
 
 def get_host_ip():
     """
@@ -166,6 +167,13 @@ def index(request):
     catenewslist=zip(catelist,newslist)
     #最新内容top6
     newstop6=news.objects.all().order_by("-create_time")[:6]
+    #最新热点top6
+    newshit=newshits.objects.values("news").annotate(total=Count("id"))
+    newshit= sorted(newshit, key=lambda k: k['total'],reverse = False)[0:6]
+    idhotlist=[]
+    for idhot in newshit:
+        idhotlist.append(idhot["news"])
+    newshot6=news.objects.filter(id__in=idhotlist)
     return render(request,'index.html', locals())
 
 #分页

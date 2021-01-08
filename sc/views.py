@@ -62,6 +62,7 @@ def logOut(request):
     return redirect(request.META['HTTP_REFERER'])
 
 def logIn(request):
+    catelist=cate.objects.all()
     # 判断是否已经登录
     if request.user.is_authenticated:
         return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -90,6 +91,7 @@ def logIn(request):
 
 @csrf_exempt
 def register(request):
+    catelist=cate.objects.all()
     if request.method == 'GET':
         request.session['login_from'] = request.META.get('HTTP_REFERER', '/')
         return render(request, 'register.html', locals())
@@ -195,6 +197,7 @@ def newscate(request,cateid):
 
  #内容详细页
 def newsdetail(request,newsid):    
+    catelist=cate.objects.all()
     newsobj=news.objects.get(id=newsid)
     newshits.objects.create(
         news=newsobj
@@ -206,6 +209,7 @@ def newsdetail(request,newsid):
 @csrf_exempt
 @login_required
 def savenews(request):    
+    catelist=cate.objects.all()
     if request.method == 'POST':
         form = newsform(request.POST)
         if form.is_valid():
@@ -229,7 +233,7 @@ def savenews(request):
     else:
         #加载表单
         form = newsform() 
-        return render(request,'addnews.html', {'form': form})
+        return render(request,'addnews.html', {'form': form,'catelist':catelist})
         
 #标题搜索
 def search(request):
@@ -304,6 +308,7 @@ def imgdetect(request,img):
 @csrf_exempt
 @login_required
 def uploadxls(request):
+    catelist=cate.objects.all()
     if request.method=="POST":
         f=request.FILES['file']
         filepath = os.path.join(settings.MEDIA_ROOT,"upfiles",f.name)
@@ -334,11 +339,13 @@ def uploadxls(request):
 #excel文件导入页
 @login_required
 def xlsform(request):
+    catelist=cate.objects.all()
     return render(request,"uploadxls.html",locals())
 
 #普通用户内容页
 @login_required
 def usernews(request):    
+    catelist=cate.objects.all()
     if request.session.get('username'):
         username= request.session["username"]
         userobj=User.objects.get(username=username)
@@ -356,6 +363,7 @@ def delnews(request,newsid):
 @csrf_exempt
 @login_required
 def editnews(request,newsid):
+    catelist=cate.objects.all()
     newsobj=news.objects.get(id=newsid)
     context={
         'newsid':newsid,#内容id,传值到内容修改

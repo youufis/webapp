@@ -152,7 +152,7 @@ def index(request):
         ipaddr=clientip
     )
     hits=ipinfo.objects.all().count    
-    fnameobj=auditimg.objects.all().order_by('?')[:4]    #图像库随机取4个
+    fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
     for f in fnameobj:
         fname.append(f.imgname)
     #imgpath=(os.path.join(settings.MEDIA_ROOT,"images",f))
@@ -216,7 +216,8 @@ def savenews(request):
             #print(222,clean_errors)
         return render(request,"addnews.html",{"form":form,"clean_errors":clean_errors})
     else:
-        form = newsform()
+        #加载表单
+        form = newsform() 
         return render(request,'addnews.html', {'form': form})
         
 #标题搜索
@@ -238,6 +239,8 @@ def imgaudit(img):
     API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
     SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
     client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
+
+    #result = client.textCensorUserDefined("测试文本") #文本审核
 
     imgpath=os.path.join(settings.MEDIA_ROOT,"images",img)    
     with open(imgpath,"rb") as fp:

@@ -20,6 +20,11 @@ import pandas as pd
 import threading
 import shutil
 from django.db.models import Avg,Max,Min,Count,Sum  #   引入函数
+#抓取外部数据
+from bs4 import BeautifulSoup
+from lxml import html
+import xml
+import requests
 
 def get_host_ip():
     """
@@ -166,8 +171,6 @@ def index(request):
         fnamenew.append(f.imgname)
 
     #imgpath=(os.path.join(settings.MEDIA_ROOT,"images",f))
-
-
    
     #取出所有类别
     catelist=cate.objects.all()
@@ -177,15 +180,19 @@ def index(request):
         newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time"),6))
     catenewslist=zip(catelist,newslist)
     #最新内容top6
-    newstop6=news.objects.all().order_by("-create_time")[:16]
+    newstop6=news.objects.filter(status="已审核").order_by("-create_time")[:11]
     #最新热点top6
     newshit=newshits.objects.values("news").annotate(total=Count("id"))
-    newshit= sorted(newshit, key=lambda k: k['total'],reverse = False)[0:16]
+    newshit= sorted(newshit, key=lambda k: k['total'],reverse = False)[:11]
     idhotlist=[]
     for idhot in newshit:
         idhotlist.append(idhot["news"])
     #print(idhotlist)
     newshot6=news.objects.filter(id__in=idhotlist).order_by('-id')
+
+    ret=friendlylink() #默认url = "https://news.sina.com.cn/china/"
+    #print(ret)
+
     return render(request,'index.html', locals())
 
 #分页
@@ -247,6 +254,8 @@ def savenews(request):
         
 #标题搜索
 def search(request):
+      #取出所有类别
+    catelist=cate.objects.all()
     ctx ={}
     if request.POST:
         ctx['keywords'] = request.POST['q']
@@ -277,6 +286,8 @@ def imgaudit(img):
 
 #调用百度AI图像识别
 def imgdetect(request,img):
+      #取出所有类别
+    catelist=cate.objects.all()
     from aip import AipImageClassify
     """ 这里输入你创建应用获得的三个参数"""
     APP_ID = '15279946'
@@ -387,5 +398,20 @@ def editnews(request,newsid):
         return  redirect('/usernews/') #编辑成功后重定向到用户内容页
 
     
-   
+def friendlylink(url="https://news.sina.com.cn/china/"):
+    #url = "https://news.sina.com.cn/china/"
+    f = requests.get(url)                 #Get该网页从而获取该html内容
+    soup = BeautifulSoup(f.content, "lxml")  #用lxml解析器解析该网页的内容, 好像f.text也是返回的html
+    content = soup.find_all('ul',class_="news-2" ) 
+    #第二次解析内容
+    hreflist=content[0].find_all("a")
+    #print(hreflist)
+    list1=[]
+    list2=[]
+    res=[]
+    for k in hreflist:
+        list1.append(k.get('href'))
+        list2.append(k.string)
+    res=zip(list1[:6],list2[:6])
+    return res
     

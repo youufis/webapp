@@ -11,6 +11,9 @@
                        序号
                     </th>
                     <th>
+                        状态
+                     </th>
+                    <th>
                         标题
                     </th>
                     <th>
@@ -32,7 +35,10 @@
                         {{newsitem.id}}
                     </td>
                     <td>
-                        {% if newsitem.title|length > 20%}
+                        {{newsitem.status}}
+                    </td>
+                    <td>
+                        {% if newsitem.title|length > 20 %}
                         <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:20}}……</a>
                         {% else %}
                         <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title}}</a>

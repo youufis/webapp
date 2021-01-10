@@ -11,7 +11,9 @@ from django.core.exceptions import ValidationError
 import os
 from .models import *
 from django.conf import settings
-from sc.addnews import newsform
+from sc.addnews import newsform # 内容表单
+from sc.addimg import imgform # 图像上传表单
+from sc.addimg import fileform # 文件上传表单
 from django.contrib import messages
 import random
 import socket
@@ -25,6 +27,8 @@ from bs4 import BeautifulSoup
 from lxml import html
 import xml
 import requests
+
+
 
 def get_host_ip():
     """
@@ -66,8 +70,14 @@ def logOut(request):
         print(e)
     return redirect(request.META['HTTP_REFERER'])
 
-def logIn(request):
+#内容分类全局变量
+def global_params(request):
     catelist=cate.objects.all()
+    #print(catelist)
+    return {"catelist":catelist}
+
+def logIn(request):
+    #catelist=cate.objects.all()
     # 判断是否已经登录
     if request.user.is_authenticated:
         return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -96,7 +106,7 @@ def logIn(request):
 
 @csrf_exempt
 def register(request):
-    catelist=cate.objects.all()
+    #catelist=cate.objects.all()
     if request.method == 'GET':
         request.session['login_from'] = request.META.get('HTTP_REFERER', '/')
         return render(request, 'register.html', locals())
@@ -113,10 +123,15 @@ def register(request):
                 # 注册
                 user = User.objects.create_user(
                     username=username, email=email, password=password) # is_staff=True激活用户登录后台
+
                 user.save()
                 #user.groups.add(name='publisher') #增加用户到publisher组（管理员后台中定义分配）（有管理自己发布内容的权限）
                 my_group = Group.objects.get(name='publisher')
                 my_group.user_set.add(user)
+                #创建用户个人目录
+                if not os.path.exists(os.path.join(settings.MEDIA_ROOT,username)):
+                    os.makedirs(os.path.join(settings.MEDIA_ROOT,username))
+                
                 # 登录
                 user.backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request, user)
@@ -207,14 +222,12 @@ def getPage(request, news_list,pagenum):
 
 #内容类别页
 def newscate(request,cateid):
-    catelist=cate.objects.all()
     cateobj=cate.objects.get(id=cateid)
     newslist=getPage(request,news.objects.filter(cate=cateobj).order_by('-create_time'),6)
     return render(request, "cate.html", locals())
 
  #内容详细页
 def newsdetail(request,newsid):    
-    catelist=cate.objects.all()
     newsobj=news.objects.get(id=newsid)
     newshits.objects.create(
         news=newsobj
@@ -226,7 +239,7 @@ def newsdetail(request,newsid):
 @csrf_exempt
 @login_required
 def savenews(request):    
-    catelist=cate.objects.all()
+    #catelist=cate.objects.all()
     if request.method == 'POST':
         form = newsform(request.POST)
         if form.is_valid():
@@ -240,7 +253,7 @@ def savenews(request):
             else:
                 news.objects.get_or_create(**data)
                 messages.success(request, '发布成功,等待审核')
-            return render(request,'addnews.html', {'form': form,'catelist':catelist}) #
+            return render(request,'addnews.html', {'form': form}) #
         else:
             
             #print(form.errors)
@@ -250,12 +263,10 @@ def savenews(request):
     else:
         #加载表单
         form = newsform() 
-        return render(request,'addnews.html', {'form': form,'catelist':catelist})
+        return render(request,'addnews.html', {'form': form})
         
 #标题搜索
 def search(request):
-      #取出所有类别
-    catelist=cate.objects.all()
     ctx ={}
     if request.POST:
         ctx['keywords'] = request.POST['q']
@@ -286,8 +297,6 @@ def imgaudit(img):
 
 #调用百度AI图像识别
 def imgdetect(request,img):
-      #取出所有类别
-    catelist=cate.objects.all()
     from aip import AipImageClassify
     """ 这里输入你创建应用获得的三个参数"""
     APP_ID = '15279946'
@@ -329,7 +338,6 @@ def imgdetect(request,img):
 @csrf_exempt
 @login_required
 def uploadxls(request):
-    catelist=cate.objects.all()
     if request.method=="POST":
         f=request.FILES['file']
         filepath = os.path.join(settings.MEDIA_ROOT,"upfiles",f.name)
@@ -356,17 +364,16 @@ def uploadxls(request):
                     
                 msg="数据导入成功"
                 return render(request,'uploadxls.html',locals())    
+        
 
 #excel文件导入页
 @login_required
 def xlsform(request):
-    catelist=cate.objects.all()
     return render(request,"uploadxls.html",locals())
 
 #普通用户内容页
 @login_required
 def usernews(request):    
-    catelist=cate.objects.all()
     if request.session.get('username'):
         username= request.session["username"]
         userobj=User.objects.get(username=username)
@@ -384,7 +391,6 @@ def delnews(request,newsid):
 @csrf_exempt
 @login_required
 def editnews(request,newsid):
-    catelist=cate.objects.all()
     newsobj=news.objects.get(id=newsid)
     context={
         'newsid':newsid,#内容id,传值到内容修改
@@ -414,4 +420,85 @@ def friendlylink(url="https://news.sina.com.cn/china/"):
         list2.append(k.string)
     res=zip(list1[:6],list2[:6])
     return res
-    
+
+#用户上传图像
+@login_required
+def getimg(request):
+    if request.method == 'POST':
+        form = imgform(request.POST, request.FILES )  # 有文件上传要传两个字段
+        if form.is_valid():
+            data=form.cleaned_data
+            #print(data)
+            if request.session.get('username'):
+                userimage.objects.create(
+                    username= request.session["username"],
+                    name=data["image"].name,
+                    img=data["image"],
+                )
+                #print(username,name)
+                messages.success(request, '上传成功')
+            return render(request,'addimg.html', {'form': form}) #
+        else:
+            #print(form.errors)
+            clean_errors=form.errors.get("__all__")
+            #print(222,clean_errors)
+        return render(request,"addimg.html",{"form":form,"clean_errors":clean_errors})
+    else:
+        #加载表单
+        form = imgform() 
+        return render(request,'addimg.html', {'form': form})
+
+#用户上传文件
+@login_required
+def getfile(request):
+    if request.method == 'POST':
+        form = fileform(request.POST, request.FILES )  # 有文件上传要传两个字段
+        if form.is_valid():
+            data=form.cleaned_data
+            if request.session.get('username'):
+                ext=data["file"].name.split(".")[-1].lower()
+                if ext not in ["xls","xlsx","csv","xls","docx","doc","ppt","pptx","txt","rar","zip","jpg","jpeg","png","gif"]:
+                    messages.success(request, '上传文件类型不支持！')
+                    return render(request,'addfile.html', {'form': form}) #
+                else:
+                    if not  os.path.exists(os.path.join(settings.MEDIA_ROOT,request.session["username"])):
+                        os.makedirs(os.path.join(settings.MEDIA_ROOT,request.session["username"]))
+                    userfile.objects.create(
+                        username= request.session["username"],
+                        name=data["file"].name,
+                        file=data["file"],
+                    )
+                    #print(username,name)
+                    messages.success(request, '上传成功')
+            return render(request,'addfile.html', {'form': form}) #
+        else:
+            #print(form.errors)
+            clean_errors=form.errors.get("__all__")
+            #print(222,clean_errors)
+        return render(request,"addfile.html",{"form":form,"clean_errors":clean_errors})
+        
+    else:
+        #加载表单
+        form = fileform() 
+        return render(request,'addfile.html', {'form': form})
+
+#用户文件
+@login_required
+def userfiles(request):    
+    if request.session.get('username'):
+        username= request.session["username"]
+        newslist=getPage(request,userfile.objects.filter(username=username).order_by('-create_time'),8)
+        return render(request, "userfiles.html",locals())
+    else:
+        return redirect("/logout/")
+
+#删除文件
+def delfile(request,fileid):
+    if request.session.get('username'):
+        username= request.session["username"]
+        fobj=userfile.objects.filter(id=fileid).first()
+        f=os.path.join(settings.MEDIA_ROOT,fobj.username,fobj.name)
+        if os.path.exists(f) :
+            os.remove(f)
+        ret=userfile.objects.filter(id=fileid).delete()
+    return redirect('/userfiles/')

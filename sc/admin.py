@@ -79,8 +79,20 @@ class auditimgadmin(admin.ModelAdmin):
     list_display=['id','imgname']
     list_per_page = 20
 
+#用户上传图像信息
+class userimageadmin(admin.ModelAdmin):
+    list_display=['id','username',"name","img","create_time"]
+    list_per_page = 20
+
+#用户上传文件信息
+class userfileadmin(admin.ModelAdmin):
+    list_display=['id','username',"name","file","create_time"]
+    list_per_page = 20
+
 admin.site.register(cate,cateadmin)
 admin.site.register(news,newsadmin)
 admin.site.register(ipinfo,ipinfoadmin)
 admin.site.register(auditimg,auditimgadmin)
+admin.site.register(userimage,userimageadmin)
+admin.site.register(userfile,userfileadmin)
 

@@ -38,6 +38,8 @@ urlpatterns = [
     path("usernews/",views.usernews,name="usernews"),
     path("delnews/<int:newsid>",views.delnews,name="delnews"),
     path("editnews/<int:newsid>",views.editnews,name="editnews"),
-    
-
+    path("getimg/",views.getimg,name="getimg"),
+    path("getfile/",views.getfile,name="getfile"),
+    path("userfiles/",views.userfiles,name="userfiles"),
+    path("delfile/<int:fileid>",views.delfile,name="delfile"),
 ]

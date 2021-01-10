@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %} {{username}} -文件管理 {% endblock %}
+{% block mainbody %}
+
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                       序号
+                    </th>
+                    <th>
+                        用户名
+                     </th>
+                    <th>
+                        文件名
+                    </th>
+                    <th>
+                        文件
+                    </th>
+                    <th>
+                        时间
+                    </th>
+                    <th>
+                        删除
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for fileitem in newslist%}
+                <tr>
+                    <td>
+                        {{fileitem.id}}
+                    </td>
+                    <td>
+                        {{fileitem.username}}
+                    </td>
+                    <td>
+                        {{fileitem.name}}
+                    </td>
+                    <td>
+                      {{fileitem.file}}
+                    </td>
+                    <td>
+                        {{fileitem.create_time}}
+                    </td>
+                    <td>
+                        <a href="{% url 'delfile' fileitem.id %}">删除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="panel-footer">
+            {% include 'pagination.html' %}
+        </div>
+    </div>
+{% endblock %}

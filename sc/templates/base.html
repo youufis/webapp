@@ -26,9 +26,9 @@
 
 <body>
 
-	<div class="container">
-		<div class="row clearfix">
-			<div class="col-md-12 column">
+	<div class="container" >
+		<div class="row clearfix" >
+			<div class="col-md-12 column" style="background-image:linear-gradient(rgb(235, 238, 241),rgb(148, 185, 240))">
 				<ul  class="nav nav-pills">
 					<li class="active">
 						<a href="{% url 'index' %}">首页</a>
@@ -50,6 +50,12 @@
 						   <li>
 							<a  href="{% url 'usernews' %}" ">内容管理</a>
 							</li>
+							<li>
+								<a  href="{% url 'userfiles' %}" ">文件管理</a>
+								</li>
+							<li>
+									<a  href="{% url 'getfile' %}" ">上传文件</a>
+								</li>
 						   {% if user.is_superuser %}
 						   <li>
 							   <a  href="{% url 'xlsform' %}">用户导入</a>
@@ -90,7 +96,7 @@
 	{% block mainbody %}
 	{% endblock %}
 
-	<div class="col-md-12 column">
+	<div class="col-md-12 column" style="background-image:linear-gradient(rgb(202, 212, 204),rgb(167, 240, 224))">
 		<h4 align="center"> Copyright © 2020 (QQ:10082823) All rights reserved. {% if hits %} 总访问量：{{hits}}{% endif %}
 		</h4>
 		<h6 align="center">本网站提供的所有信息，仅供测试学习之用，如有侵犯您的知识产权，

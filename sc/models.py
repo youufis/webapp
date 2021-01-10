@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from DjangoUeditor.models import UEditorField
+from django.conf import settings
+import os
 # Create your models here.
+
 
 
 class cate(models.Model):
@@ -10,7 +13,7 @@ class cate(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = "分类"
+        verbose_name = "内容分类"
         verbose_name_plural = verbose_name
 
 #存放已审核过的图片文件名
@@ -20,7 +23,7 @@ class auditimg(models.Model):
     def __str__(self):
         return self.imgname
     class Meta:
-        verbose_name="图像"
+        verbose_name="审核图像"
         verbose_name_plural=verbose_name
 
 class news(models.Model):
@@ -33,12 +36,11 @@ class news(models.Model):
     status = models.CharField(verbose_name="审核", choices=(
         ("未审核", "未审核"), ("已审核", "已审核")), max_length=10, default="未审核")
 
-
     def __str__(self):
         return self.title
 
     class Meta:
-        verbose_name = "新闻"
+        verbose_name = "新闻内容"
         verbose_name_plural = verbose_name
 
 class ipinfo(models.Model):
@@ -51,7 +53,7 @@ class ipinfo(models.Model):
         return self.caption
 
     class Meta:
-        verbose_name="地址"
+        verbose_name="访问地址"
         verbose_name_plural=verbose_name
 
 class newshits(models.Model):
@@ -63,6 +65,35 @@ class newshits(models.Model):
     class Meta:
         verbose_name="热度"
         verbose_name_plural=verbose_name
+
+#让上传的文件路径动态地与user的名字有关
+def upload_to(instance,filename):
+    return os.path.join(instance.username,filename)
+
+class userfile(models.Model):
+    username = models.CharField(verbose_name="用户名",max_length=50)
+    name = models.CharField(max_length=150,null=True)
+    file=models.FileField(verbose_name="文件",upload_to=upload_to)
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
+    
+    def __str__(self):
+        return self.username
+    class Meta:
+        verbose_name="用户文件"
+        verbose_name_plural=verbose_name
+
+class userimage(models.Model):
+    username = models.CharField(verbose_name="用户名",max_length=50)
+    name = models.CharField(max_length=150,null=True)
+    img=models.ImageField(verbose_name="图像",upload_to=upload_to)
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
+
+    def __str__(self):
+        return self.username
+    class Meta:
+        verbose_name="用户图像"
+        verbose_name_plural=verbose_name
+    
 
     
 

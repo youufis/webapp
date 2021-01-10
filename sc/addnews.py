@@ -12,8 +12,8 @@ class newsform(forms.Form):
         queryset=catelist, label="类别", initial=catelist.first().name)
   
     title = forms.CharField(max_length=100, label="标题",
-                            widget=widgets.TextInput(attrs={'size': '80'}))
+                            widget=widgets.TextInput(attrs={'size': '50%'}))
     content = forms.CharField(label="内容", widget=UEditorWidget(
-        {"width": 800, "height": 400,
-         "imagePath": 'images/', "filePath": 'upfiles/', "toolbars": "mini"}))
+        {"width":"98%", "height": 400,
+         "imagePath": 'images/', "filePath": 'upfiles/'}))
     # toolbars:full(default), besttome, mini and normal!')

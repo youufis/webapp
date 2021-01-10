@@ -28,7 +28,7 @@ class auditimg(models.Model):
 
 class news(models.Model):
     title = models.CharField(verbose_name="标题", max_length=100)
-    content = UEditorField(verbose_name='内容', width=600, height=400,imagePath='images/',filePath='upfiles/',default='')
+    content = UEditorField(verbose_name='内容', width='100%', height=400,imagePath='images/',filePath='upfiles/',default='')
     cate = models.ForeignKey(cate, verbose_name="分类", on_delete=models.CASCADE)
     user = models.ForeignKey(User, verbose_name='用户',related_name='user',on_delete=models.CASCADE,blank=True,null=True)
     create_time = models.DateTimeField(verbose_name="时间", auto_now_add=True)

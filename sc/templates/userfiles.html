@@ -20,6 +20,9 @@
                         文件
                     </th>
                     <th>
+                        大小
+                    </th>
+                    <th>
                         时间
                     </th>
                     <th>
@@ -43,6 +46,9 @@
                     <td>
                       {{fileitem.file}}
                     </td>
+                    <td>
+                        {{fileitem.size|filesizeformat}}
+                      </td>
                     <td>
                         {{fileitem.create_time}}
                     </td>

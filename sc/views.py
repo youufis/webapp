@@ -421,11 +421,12 @@ def friendlylink(url="https://news.sina.com.cn/china/"):
     res=zip(list1[:6],list2[:6])
     return res
 
-#用户上传图像
+#用户上传图像，与上传文件合并
 @login_required
 def getimg(request):
     if request.method == 'POST':
         form = imgform(request.POST, request.FILES )  # 有文件上传要传两个字段
+        f=request.FILES['image']
         if form.is_valid():
             data=form.cleaned_data
             #print(data)
@@ -434,6 +435,7 @@ def getimg(request):
                     username= request.session["username"],
                     name=data["image"].name,
                     img=data["image"],
+                    size=f.size
                 )
                 #print(username,name)
                 messages.success(request, '上传成功')
@@ -453,6 +455,8 @@ def getimg(request):
 def getfile(request):
     if request.method == 'POST':
         form = fileform(request.POST, request.FILES )  # 有文件上传要传两个字段
+        f=request.FILES['file']
+        #print(f.size)
         if form.is_valid():
             data=form.cleaned_data
             if request.session.get('username'):
@@ -467,9 +471,11 @@ def getfile(request):
                         username= request.session["username"],
                         name=data["file"].name,
                         file=data["file"],
+                        size=f.size
                     )
                     #print(username,name)
-                    messages.success(request, '上传成功')
+                    print(data["file"].size)
+                    messages.success(request,data["file"].name+'上传成功')
             return render(request,'addfile.html', {'form': form}) #
         else:
             #print(form.errors)

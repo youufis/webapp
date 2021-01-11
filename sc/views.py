@@ -179,8 +179,10 @@ def index(request):
             num=1
         )
     #汇总所有ip访问次数
-    ret= ipinfo.objects.annotate(total = Sum("num")).values("total","total")
-    hits=ret[0]['total']
+    ret1= ipinfo.objects.annotate(total = Sum("num")).values("ipaddr","total")
+    #print(ret1)
+    ret= ipinfo.objects.aggregate(total=Sum('num'))    
+    hits=ret['total']
 
     fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
     for f in fnameobj:

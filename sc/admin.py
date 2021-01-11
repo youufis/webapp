@@ -71,7 +71,7 @@ class newsadmin(admin.ModelAdmin):
 
 #登录ip信息
 class ipinfoadmin(admin.ModelAdmin):
-    list_display=['id','caption','ipaddr','create_time']
+    list_display=['id','caption','ipaddr','num','create_time']
     list_per_page = 20
 
 #已审核图像信息

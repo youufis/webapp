@@ -46,7 +46,9 @@ class news(models.Model):
 class ipinfo(models.Model):
     caption=models.CharField(verbose_name="地址",max_length=20,default="IP")
     ipaddr=models.GenericIPAddressField(verbose_name="IP地址")
+    num=models.IntegerField(verbose_name="次数",blank=True,null=True)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
+    
     
 
     def __str__(self):

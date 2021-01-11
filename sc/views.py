@@ -15,7 +15,7 @@ from sc.webforms import * #自定义表单
 from django.contrib import messages
 import random
 import socket
-from django.db.models import Q
+from django.db.models import Q,F
 import pandas as pd
 import threading
 import shutil
@@ -170,10 +170,18 @@ def index(request):
     fnamenew=[]
     hostip=get_host_ip()
     clientip=get_client_ip(request)
-    res=ipinfo.objects.create(
-        ipaddr=clientip
-    )
-    hits=ipinfo.objects.all().count    
+    #来访ip记数
+    if ipinfo.objects.filter(ipaddr__in=[clientip]):
+       res = ipinfo.objects.update(num=F("num")+1)
+    else:
+        res=ipinfo.objects.create(
+            ipaddr=clientip,
+            num=1
+        )
+    #汇总所有ip访问次数
+    ret= ipinfo.objects.annotate(total = Sum("num")).values("total","total")
+    hits=ret[0]['total']
+
     fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
     for f in fnameobj:
         fname.append(f.imgname)

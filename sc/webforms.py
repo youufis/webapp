@@ -10,10 +10,14 @@ class newsform(forms.Form):
     catelist = cate.objects.all()
     cate = forms.ModelChoiceField(
         queryset=catelist, label="类别", initial=catelist.first().name)
-  
+
     title = forms.CharField(max_length=100, label="标题",
                             widget=widgets.TextInput(attrs={'size': '50%'}))
     content = forms.CharField(label="内容", widget=UEditorWidget(
         {"width":"98%", "height": 400,
          "imagePath": 'images/', "filePath": 'upfiles/'}))
     # toolbars:full(default), besttome, mini and normal!')
+
+#用户上传文件
+class fileform(forms.Form):
+    file=forms.FileField(label="文件上传：")

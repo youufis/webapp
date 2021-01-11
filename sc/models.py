@@ -83,19 +83,7 @@ class userfile(models.Model):
         verbose_name="用户文件"
         verbose_name_plural=verbose_name
 
-#用户单独上传图像管理
-class userimage(models.Model):
-    username = models.CharField(verbose_name="用户名",max_length=50)
-    name = models.CharField(max_length=150,null=True)
-    img=models.ImageField(verbose_name="图像",upload_to=upload_to)
-    size=models.IntegerField(verbose_name="大小",blank=True,null=True)
-    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
 
-    def __str__(self):
-        return self.username
-    class Meta:
-        verbose_name="用户图像"
-        verbose_name_plural=verbose_name
     
 
     

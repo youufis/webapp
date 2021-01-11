@@ -11,9 +11,7 @@ from django.core.exceptions import ValidationError
 import os
 from .models import *
 from django.conf import settings
-from sc.addnews import newsform # 内容表单
-from sc.addimg import imgform # 图像上传表单
-from sc.addimg import fileform # 文件上传表单
+from sc.webforms import * #自定义表单
 from django.contrib import messages
 import random
 import socket
@@ -364,12 +362,12 @@ def uploadxls(request):
                     
                 msg="数据导入成功"
                 return render(request,'uploadxls.html',locals())    
-        
+    else:
+        #加载表单
+        return render(request,"uploadxls.html",locals())
 
-#excel文件导入页
-@login_required
-def xlsform(request):
-    return render(request,"uploadxls.html",locals())
+
+
 
 #普通用户内容页
 @login_required
@@ -421,34 +419,6 @@ def friendlylink(url="https://news.sina.com.cn/china/"):
     res=zip(list1[:6],list2[:6])
     return res
 
-#用户上传图像，与上传文件合并
-@login_required
-def getimg(request):
-    if request.method == 'POST':
-        form = imgform(request.POST, request.FILES )  # 有文件上传要传两个字段
-        f=request.FILES['image']
-        if form.is_valid():
-            data=form.cleaned_data
-            #print(data)
-            if request.session.get('username'):
-                userimage.objects.create(
-                    username= request.session["username"],
-                    name=data["image"].name,
-                    img=data["image"],
-                    size=f.size
-                )
-                #print(username,name)
-                messages.success(request, '上传成功')
-            return render(request,'addimg.html', {'form': form}) #
-        else:
-            #print(form.errors)
-            clean_errors=form.errors.get("__all__")
-            #print(222,clean_errors)
-        return render(request,"addimg.html",{"form":form,"clean_errors":clean_errors})
-    else:
-        #加载表单
-        form = imgform() 
-        return render(request,'addimg.html', {'form': form})
 
 #用户上传文件
 @login_required

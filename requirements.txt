@@ -1,3 +1,7 @@
 Django
 DjangoUeditor
 six
+baidu-aip
+pandas
+bs4
+lxml

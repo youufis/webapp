@@ -236,11 +236,17 @@ def newscate(request,cateid):
 
  #内容详细页
 def newsdetail(request,newsid):    
-    newsobj=news.objects.get(id=newsid)
-    newshits.objects.create(
-        news=newsobj
-    )
-    news_hits=newshits.objects.filter(news=newsobj).count
+    newsobj=news.objects.get(id=newsid)    
+    if newshits.objects.filter(news=newsobj):
+       res = newshits.objects.update(num=F("num")+1)
+    else:
+        res=newshits.objects.create(
+            news=newsobj,
+            num=1
+        )   
+    #news_hits=newshits.objects.filter(news=newsobj).count
+    news_hitsobj=newshits.objects.filter(news=newsobj).first()
+    news_hits=news_hitsobj.num
     return render(request, "newsdetail.html", locals())
 
 #普通用户发布和修改内容

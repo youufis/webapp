@@ -60,13 +60,9 @@ class ipinfo(models.Model):
 
 class newshits(models.Model):
     news=models.ForeignKey(news,verbose_name="热度",on_delete=models.CASCADE)
+    num=models.IntegerField(verbose_name="次数",blank=True,null=True)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
    
-    def __str__(self):
-        return self.news
-    class Meta:
-        verbose_name="热度"
-        verbose_name_plural=verbose_name
 
 #让上传的文件路径动态地与user的名字有关
 def upload_to(instance,filename):

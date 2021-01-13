@@ -83,6 +83,17 @@
 	{% endfor %}
 
 	<div class="col-md-4 column">
+		<a href="{%url 'userproduct' 1 %}">最新产品</a>
+		<ul>
+			{% for productitem in producttop6 %}
+			<li>
+				<a href="{%url 'productdetail' productitem.id %}">{{productitem.name}}({{productitem.create_time|date:"y/m/j"}})</a>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+
+	<div class="col-md-4 column">
 		外部新闻
 		<ul>
 			{% for urlval,strval in ret %}

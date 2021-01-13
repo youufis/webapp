@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %} {{username}} -产品修改 {% endblock %}
+{% block mainbody %}
+{% load static %}
+<script src="{% static 'ueditor/ueditor.config.js'%}"></script>
+<script src="{% static 'ueditor/ueditor.all.min.js'%}"></script>
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    
+                </h3>
+            </div>
+            <div class="panel-body">
+                {{ form.media }}
+                <form action="{% url 'addproduct' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="text" id="productid" name="productid" hidden=True value="{{productid}}" />
+                    {{ content_form }}
+                    <button type="submit">保存</button>
+                </form>
+                <script>
+                    {% if productitem %}
+                    document.getElementById("id_name").value='{{ productitem.name }}';
+                    document.getElementById("id_price").value='{{ productitem.price }}';
+                    //如果文章有内容就填充在content_form中
+                    document.getElementById("id_content").value='{{ productitem.content|safe }}';
+                    {% endif %}
+                </script>
+            </div>
+            <div class="panel-footer">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

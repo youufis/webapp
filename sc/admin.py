@@ -85,9 +85,15 @@ class userfileadmin(admin.ModelAdmin):
     list_display=['id','username',"name","file","create_time"]
     list_per_page = 20
 
+#产品
+class productadmin(admin.ModelAdmin):
+    list_display=['id','name','user','img','price','repository','status','create_time']
+    list_per_page=20
+
 admin.site.register(cate,cateadmin)
 admin.site.register(news,newsadmin)
 admin.site.register(ipinfo,ipinfoadmin)
 admin.site.register(auditimg,auditimgadmin)
 admin.site.register(userfile,userfileadmin)
+admin.site.register(product,productadmin)
 

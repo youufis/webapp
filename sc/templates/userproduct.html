@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %} {{username}} -产品管理 {% endblock %}
+{% block mainbody %}
+
+
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                       序号
+                    </th>
+                    <th>
+                        状态
+                     </th>
+                    <th>
+                        产品名称
+                    </th>
+                    <th>
+                        价格
+                    </th>
+                    <th>
+                        时间
+                    </th>
+                    {% if fbool %}
+                    <th>
+                        编辑
+                    </th>
+                    <th>
+                        删除
+                    </th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for newsitem in newslist%}
+                <tr>
+                    <td>
+                        {{newsitem.id}}
+                    </td>
+                    <td>
+                        {{newsitem.status}}
+                    </td>
+                    <td>
+                        {% if newsitem.name|length > 20 %}
+                        <a href="{% url 'productdetail' newsitem.id %}">{{newsitem.name|truncatechars:20}}……</a>
+                        {% else %}
+                        <a href="{% url 'productdetail' newsitem.id %}">{{newsitem.name}}</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{newsitem.price}}
+                    </td>
+                    <td>
+                        {{newsitem.create_time}}
+                    </td>
+                    {% if fbool %}
+                    <td>
+                       <a href="{% url 'editproduct' newsitem.id %}">编辑</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'delproduct' newsitem.id %}">删除</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="panel-footer">
+            {% include 'pagination.html' %}
+        </div>
+    </div>
+{% endblock %}

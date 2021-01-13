@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %} {{productobj.name}}-内容{% endblock %}
+{% block mainbody %}
+
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+						产品介绍
+						<div class="row clearfix">
+							<div class="col-md-4 column">
+								<img  width=320px height=320px src="/media/{{productobj.img}}" class="img-thumbnail" />
+							</div>
+							<div class="col-md-8 column">
+								产品名称：{{productobj.name}}<br><br>
+								所属用户：{{productobj.user}}<br><br>
+								产品价格：{{productobj.price}} 豆点<br><br>
+								产品库存：{{productobj.repository}}<br><br>
+								发布时间：{{productobj.create_time}}<br><br>
+							</div>
+						</div>
+						
+						
+ 					</h3>
+				</div>
+				<div class="panel-body">
+					<h3>产品详情</h3>
+					{{productobj.content|safe}}
+				</div>
+				<div class="panel-footer">
+					{{productobj.create_time}}  发布人:{{productobj.user}}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

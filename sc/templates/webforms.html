@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %} 文件上传 {% endblock %}
+{% block title %} {{title}} {% endblock %}
 {% block mainbody %}
+{{ form.media }}
 <div class="row clearfix">
     <div class="col-md-12 column">
         <div class="panel panel-default">
@@ -21,11 +22,7 @@
                 </form>
             </div>
             <div class="panel-footer">
-                {% if messages %}
-                {% for message in messages %}
-                 {{ message }}
-                {% endfor %}
-            {% endif %}
+                
             </div>
         </div>
     </div>

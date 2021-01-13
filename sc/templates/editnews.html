@@ -4,8 +4,16 @@
 {% load static %}
 <script src="{% static 'ueditor/ueditor.config.js'%}"></script>
 <script src="{% static 'ueditor/ueditor.all.min.js'%}"></script>
-
-{{ form.media }}
+<div class="row clearfix">
+    <div class="col-md-12 column">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                   
+                </h3>
+            </div>
+            <div class="panel-body">
+                {{ form.media }}
 
 <form action="{% url 'addnews' %}" method="post">
     {% csrf_token %}
@@ -25,4 +33,13 @@
     document.getElementById("id_content").value='{{ newsitem.content|safe }}';
     {% endif %}
 </script>
+            </div>
+            <div class="panel-footer">
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+
 {% endblock %}

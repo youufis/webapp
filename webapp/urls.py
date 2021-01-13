@@ -40,4 +40,9 @@ urlpatterns = [
     path("getfile/",views.getfile,name="getfile"),
     path("userfiles/",views.userfiles,name="userfiles"),
     path("delfile/<int:fileid>",views.delfile,name="delfile"),
+    path("userproduct/<int:typeid>",views.userproduct,name="userproduct"),
+    path("delproduct/<int:productid>",views.delproduct,name="delproduct"),
+    path("editproduct/<int:productid>",views.editproduct,name="editproduct"),
+    path('productdetail/<int:productid>',views.productdetail,name="productdetail"),
+    path('addproduct/',views.saveproduct,name="addproduct"),
 ]

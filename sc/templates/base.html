@@ -56,6 +56,12 @@
 							<li>
 									<a  href="{% url 'getfile' %}" ">上传文件</a>
 								</li>
+								<li>
+									<a  href="{% url 'addproduct' %}" ">产品发布</a>
+								</li>
+								<li>
+									<a  href="{% url 'userproduct' 0 %}" ">产品管理</a>
+									</li>
 						   {% if user.is_superuser %}
 						   <li>
 							   <a  href="{% url 'uploadxls' %}">用户导入</a>

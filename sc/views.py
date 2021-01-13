@@ -27,7 +27,7 @@ import xml
 import requests
 
 
-
+#########################获取IP############################################
 def get_host_ip():
     """
     查询本机ip地址
@@ -48,7 +48,7 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
     return ip
-
+########################################################################
 #生成验证码
 def check_code(request):
     import io
@@ -60,19 +60,13 @@ def check_code(request):
     # 图片页面中显示, 立即把 session 中的 CheckCode 更改为目前的随机字符串值
     request.session["CheckCode"] = code
     return HttpResponse(stream.getvalue())
-
+###################用户注册登录登出##########################################
 def logOut(request):
     try:
         logout(request)
     except Exception as e:
         print(e)
     return redirect(request.META['HTTP_REFERER'])
-
-#内容分类全局变量
-def global_params(request):
-    catelist=cate.objects.all()
-    #print(catelist)
-    return {"catelist":catelist}
 
 def logIn(request):
     #catelist=cate.objects.all()
@@ -136,7 +130,7 @@ def register(request):
                 # 重定向跳转
     return redirect(request.session['login_from'], '/')
 
-##########################################    
+##################################################################################################   
 #图像审核
 def imgtoaudit():
     file_dir=os.path.join(settings.MEDIA_ROOT,"images")
@@ -145,7 +139,7 @@ def imgtoaudit():
     for img in fname:    
         fimg=auditimg.objects.filter(imgname=img)  #审核过的图像不用再审
         if not fimg.exists():   
-            print(img)   
+            #print(img)   
             if imgaudit(img) in ['合规']: #图像审核通过存入图像库
                 #fname[fname.index(img)]="audit.jpg"
                 ret=auditimg.objects.get_or_create(
@@ -155,139 +149,6 @@ def imgtoaudit():
                 fsrc=os.path.join(settings.MEDIA_ROOT,"images",img)
                 fdst=os.path.join(settings.MEDIA_ROOT,"recycle",img)
                 shutil.move(fsrc,fdst)
-            
-
-#定义一个图象审核线程
-def timgtoaudit():
-    t = threading.Thread(target=imgtoaudit)       
-    t.setDaemon(True)
-    t.start()
-
-#首页
-def index(request):
-    timgtoaudit() #开启线程进行图像审核
-    fname=[]
-    fnamenew=[]
-    hostip=get_host_ip()
-    clientip=get_client_ip(request)
-    #来访ip记数
-    if ipinfo.objects.filter(ipaddr__in=[clientip]):
-       res = ipinfo.objects.update(num=F("num")+1)
-    else:
-        res=ipinfo.objects.create(
-            ipaddr=clientip,
-            num=1
-        )
-    #汇总所有ip访问次数
-    ret1= ipinfo.objects.annotate(total = Sum("num")).values("ipaddr","total")
-    #print(ret1)
-    ret= ipinfo.objects.aggregate(total=Sum('num'))    
-    hits=ret['total']
-
-    fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
-    for f in fnameobj:
-        fname.append(f.imgname)
-    
-    #最新图片
-    fnamenewobj=auditimg.objects.all().order_by("-id")[:3]
-    for f in fnamenewobj:
-        fnamenew.append(f.imgname)
-
-    #imgpath=(os.path.join(settings.MEDIA_ROOT,"images",f))
-   
-    #取出所有类别
-    catelist=cate.objects.all()
-    newslist=[]
-    #按类别返回内容
-    for cateobj in catelist:        
-        newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time"),6))
-    catenewslist=zip(catelist,newslist)
-    #最新内容top6
-    newstop6=news.objects.filter(status="已审核").order_by("-create_time")[:11]
-    #最新热点top6
-    newshit=newshits.objects.values("news").annotate(total=Count("id"))
-    newshit= sorted(newshit, key=lambda k: k['total'],reverse = False)[:11]
-    idhotlist=[]
-    for idhot in newshit:
-        idhotlist.append(idhot["news"])
-    #print(idhotlist)
-    newshot6=news.objects.filter(id__in=idhotlist).order_by('-id')
-
-    ret=friendlylink() #默认url = "https://news.sina.com.cn/china/"
-    #print(ret)
-
-    return render(request,'index.html', locals())
-
-#分页
-def getPage(request, news_list,pagenum):
-    paginator = Paginator(news_list, pagenum)
-    try:
-        page = int(request.GET.get('page', 1))
-        news_list = paginator.page(page)
-    except (EmptyPage, InvalidPage, PageNotAnInteger):
-        news_list = paginator.page(1)
-    return news_list
-
-#内容类别页
-def newscate(request,cateid):
-    cateobj=cate.objects.get(id=cateid)
-    newslist=getPage(request,news.objects.filter(cate=cateobj).order_by('-create_time'),6)
-    return render(request, "cate.html", locals())
-
- #内容详细页
-def newsdetail(request,newsid):    
-    newsobj=news.objects.get(id=newsid)    
-    if newshits.objects.filter(news=newsobj):
-       res = newshits.objects.update(num=F("num")+1)
-    else:
-        res=newshits.objects.create(
-            news=newsobj,
-            num=1
-        )   
-    #news_hits=newshits.objects.filter(news=newsobj).count
-    news_hitsobj=newshits.objects.filter(news=newsobj).first()
-    news_hits=news_hitsobj.num
-    return render(request, "newsdetail.html", locals())
-
-#普通用户发布和修改内容
-@csrf_exempt
-@login_required
-def savenews(request):    
-    #catelist=cate.objects.all()
-    if request.method == 'POST':
-        form = newsform(request.POST)
-        if form.is_valid():
-            data=form.cleaned_data
-            data["user"]=User.objects.get(username=request.user.username)
-            newsid=request.POST.get("newsid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
-            if news.objects.filter(id=newsid).exists():
-                news.objects.filter(id=newsid).update(**data)
-                messages.success(request, '修改成功')
-                #return redirect("/usernews/") #根据需要可重定向页面
-            else:
-                news.objects.get_or_create(**data)
-                messages.success(request, '发布成功,等待审核')
-            return render(request,'addnews.html', {'form': form}) #
-        else:
-            
-            #print(form.errors)
-            clean_errors=form.errors.get("__all__")
-            #print(222,clean_errors)
-        return render(request,"addnews.html",{"form":form,"clean_errors":clean_errors})
-    else:
-        #加载表单
-        form = newsform() 
-        return render(request,'addnews.html', {'form': form})
-        
-#标题搜索
-def search(request):
-    ctx ={}
-    if request.POST:
-        ctx['keywords'] = request.POST['q']
-    res=ctx['keywords']
-    newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"),10)
-    return render(request,"result.html",locals())
-
 #调用百度内容审核
 #conclusion	String	N	审核结果，可取值描述：合规、不合规、疑似、审核失败
 #conclusionType	uint64	N	审核结果类型，可取值1、2、3、4，分别代表1：合规，2：不合规，3：疑似，4：审核失败
@@ -348,6 +209,157 @@ def imgdetect(request,img):
 
     return render(request,"imginfo.html",locals())
 
+
+#定义一个图象审核线程
+def timgtoaudit():
+    t = threading.Thread(target=imgtoaudit)       
+    t.setDaemon(True)
+    t.start()
+##########################################################################################
+#内容分类全局变量
+def global_params(request):
+    catelist=cate.objects.all()
+    #print(catelist)
+    return {"catelist":catelist}
+
+#首页
+def index(request):
+    timgtoaudit() #开启线程进行图像审核
+    fname=[]
+    fnamenew=[]
+    hostip=get_host_ip()
+    clientip=get_client_ip(request)
+    #来访ip记数
+    if ipinfo.objects.filter(ipaddr__in=[clientip]):
+       res = ipinfo.objects.update(num=F("num")+1)
+    else:
+        res=ipinfo.objects.create(
+            ipaddr=clientip,
+            num=1
+        )
+    #汇总所有ip访问次数
+    #ret1= ipinfo.objects.annotate(total = Sum("num")).values("ipaddr","total")
+    #ret2=ipinfo.objects.filter(ipaddr=clientip).first()
+    #print(ret1,ret2)
+    ret= ipinfo.objects.aggregate(total=Sum('num'))    
+    hits=ret['total']
+
+    #图片随机展示
+    fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
+    for f in fnameobj:
+        imgpath=os.path.join(settings.MEDIA_ROOT,"images",f.imgname)
+        if not os.path.exists(imgpath):#如果不存在，删除图像库记录         
+            ret=auditimg.objects.filter(imgname=f.imgname).delete()
+        else:
+            fname.append(f.imgname)
+    
+    #最新图片
+    fnamenewobj=auditimg.objects.all().order_by("-id")[:3]
+    for f in fnamenewobj:
+        imgpath=os.path.join(settings.MEDIA_ROOT,"images",f.imgname)
+        if not os.path.exists(imgpath):#如果不存在，删除图像库记录
+            #os.remove(imgpath)            
+            ret=auditimg.objects.filter(imgname=f.imgname).delete()
+        else:
+            fnamenew.append(f.imgname)
+   
+    #取出所有类别
+    catelist=cate.objects.all()
+    newslist=[]
+    #按类别返回内容
+    for cateobj in catelist:        
+        newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time"),6))
+    catenewslist=zip(catelist,newslist)
+    #最新内容top6
+    newstop6=news.objects.filter(status="已审核").order_by("-create_time")[:11]
+    #最新热点top6
+    newshit=newshits.objects.values("news").annotate(total=Count("id"))
+    newshit= sorted(newshit, key=lambda k: k['total'],reverse = False)[:11]
+    idhotlist=[]
+    for idhot in newshit:
+        idhotlist.append(idhot["news"])
+    #print(idhotlist)
+    newshot6=news.objects.filter(id__in=idhotlist).order_by('-id')
+
+    ret=friendlylink() #默认url = "https://news.sina.com.cn/china/"
+    #print(ret)
+
+    producttop6=product.objects.filter(status="已审核").order_by("-create_time")[:6]
+
+    return render(request,'index.html', locals())
+
+#分页
+def getPage(request, news_list,pagenum):
+    paginator = Paginator(news_list, pagenum)
+    try:
+        page = int(request.GET.get('page', 1))
+        news_list = paginator.page(page)
+    except (EmptyPage, InvalidPage, PageNotAnInteger):
+        news_list = paginator.page(1)
+    return news_list
+#########################################################################
+#内容类别页
+def newscate(request,cateid):
+    cateobj=cate.objects.get(id=cateid)
+    newslist=getPage(request,news.objects.filter(cate=cateobj).order_by('-create_time'),6)
+    return render(request, "cate.html", locals())
+
+ #内容详细页
+def newsdetail(request,newsid):    
+    newsobj=news.objects.get(id=newsid)    
+    if newshits.objects.filter(news=newsobj):
+       res = newshits.objects.update(num=F("num")+1)
+    else:
+        res=newshits.objects.create(
+            news=newsobj,
+            num=1
+        )   
+    #news_hits=newshits.objects.filter(news=newsobj).count
+    news_hitsobj=newshits.objects.filter(news=newsobj).first()
+    news_hits=news_hitsobj.num
+    return render(request, "newsdetail.html", locals())
+
+#普通用户发布和修改内容
+@csrf_exempt
+@login_required
+def savenews(request):    
+    #catelist=cate.objects.all()
+    if request.method == 'POST':
+        form = newsform(request.POST)
+        if form.is_valid():
+            data=form.cleaned_data
+            data["user"]=User.objects.get(username=request.user.username)
+            newsid=request.POST.get("newsid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
+            if news.objects.filter(id=newsid).exists():
+                news.objects.filter(id=newsid).update(**data)
+                messages.success(request, '修改成功')
+                #return redirect("/usernews/") #根据需要可重定向页面
+            else:
+                news.objects.get_or_create(**data)
+                messages.success(request, '发布成功,等待审核')
+            return render(request,'webforms.html', {'form': form}) #
+        else:
+            
+            #print(form.errors)
+            clean_errors=form.errors.get("__all__")
+            #print(222,clean_errors)
+        return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
+    else:
+        #加载表单
+        title="内容发布与修改"
+        form = newsform() 
+        return render(request,'webforms.html', {'form': form,'title':title})
+        
+#标题搜索
+def search(request):
+    ctx ={}
+    if request.POST:
+        ctx['keywords'] = request.POST['q']
+    res=ctx['keywords']
+    newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"),10)
+    return render(request,"result.html",locals())
+
+#########################################################################
 #excel批量导入用户
 @csrf_exempt
 @login_required
@@ -381,9 +393,7 @@ def uploadxls(request):
     else:
         #加载表单
         return render(request,"uploadxls.html",locals())
-
-
-
+######################################################################################
 
 #普通用户内容页
 @login_required
@@ -417,7 +427,8 @@ def editnews(request,newsid):
         #news.objects.filter(id=newsid).update(**request.POST)
         return  redirect('/usernews/') #编辑成功后重定向到用户内容页
 
-    
+#############################################################################################
+# 抓取外部新闻链接    
 def friendlylink(url="https://news.sina.com.cn/china/"):
     #url = "https://news.sina.com.cn/china/"
     f = requests.get(url)                 #Get该网页从而获取该html内容
@@ -434,7 +445,7 @@ def friendlylink(url="https://news.sina.com.cn/china/"):
         list2.append(k.string)
     res=zip(list1[:6],list2[:6])
     return res
-
+#########################################################################################
 
 #用户上传文件
 @login_required
@@ -449,7 +460,7 @@ def getfile(request):
                 ext=data["file"].name.split(".")[-1].lower()
                 if ext not in ["xls","xlsx","csv","xls","docx","doc","ppt","pptx","txt","rar","zip","jpg","jpeg","png","gif"]:
                     messages.success(request, '上传文件类型不支持！')
-                    return render(request,'addfile.html', {'form': form}) #
+                    return render(request,'webforms.html', {'form': form}) #
                 else:
                     if not  os.path.exists(os.path.join(settings.MEDIA_ROOT,request.session["username"])):
                         os.makedirs(os.path.join(settings.MEDIA_ROOT,request.session["username"]))
@@ -462,17 +473,18 @@ def getfile(request):
                     #print(username,name)
                     print(data["file"].size)
                     messages.success(request,data["file"].name+'上传成功')
-            return render(request,'addfile.html', {'form': form}) #
+            return render(request,'webforms.html', {'form': form}) #
         else:
             #print(form.errors)
             clean_errors=form.errors.get("__all__")
             #print(222,clean_errors)
-        return render(request,"addfile.html",{"form":form,"clean_errors":clean_errors})
+        return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
         
     else:
         #加载表单
+        title="文件上传"
         form = fileform() 
-        return render(request,'addfile.html', {'form': form})
+        return render(request,'webforms.html', {'form': form,"title":title})
 
 #用户文件
 @login_required
@@ -494,3 +506,93 @@ def delfile(request,fileid):
             os.remove(f)
         ret=userfile.objects.filter(id=fileid).delete()
     return redirect('/userfiles/')
+#####################################################################################################
+#普通用户产品面
+#@login_required
+def userproduct(request,typeid=0):    
+    fbool=False
+    #管理页面
+    if typeid==0: 
+        fbool=True
+        if request.session.get('username'):
+            username= request.session["username"]
+            userobj=User.objects.get(username=username)
+            newslist=getPage(request,product.objects.filter(user=userobj).order_by('-create_time'),8)
+            return render(request, "userproduct.html",locals())
+        else:
+            return redirect("/logout/")
+    else:
+        #非管理页面
+        fbool=False
+        newslist=getPage(request,product.objects.filter(status="已审核").order_by('-create_time'),8)
+        return render(request, "userproduct.html",locals())
+
+#删除产品
+def delproduct(request,productid):
+    ret=product.objects.filter(id=productid).delete()
+    return redirect('/userproduct/0')
+
+#编辑产品
+@csrf_exempt
+@login_required
+def editproduct(request,productid):
+    productobj=product.objects.get(id=productid)
+    context={
+        'productid':productid,#内容id,传值到内容修改
+        'productitem':productobj,
+        'content_form':productform().as_p #调用发布和修改内容表单
+    }
+    if request.method=="GET":
+        return render(request, 'editproduct.html', context=context)
+    elif request.method=="POST":
+        return  redirect('/userproduct/') #编辑成功后重定向到用户内容页
+
+ #产品详细页
+def productdetail(request,productid):    
+    productobj=product.objects.get(id=productid)  
+    '''  
+    if newshits.objects.filter(news=productobj):
+       res = newshits.objects.update(num=F("num")+1)
+    else:
+        res=newshits.objects.create(
+            news=newsobj,
+            num=1
+        )   
+    #news_hits=newshits.objects.filter(news=newsobj).count
+    news_hitsobj=newshits.objects.filter(news=newsobj).first()
+    news_hits=news_hitsobj.num
+    '''
+    return render(request, "productdetail.html", locals())
+
+#普通用户发布和修改产品
+@csrf_exempt
+@login_required
+def saveproduct(request):    
+    #catelist=cate.objects.all()
+    if request.method == 'POST':
+        form = productform(request.POST,request.FILES )
+        f=request.FILES['img']
+        if form.is_valid():
+            data=form.cleaned_data
+            data["user"]=User.objects.get(username=request.user.username)
+            data['img']=f
+            productid=request.POST.get("productid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
+            if product.objects.filter(id=productid).exists():
+                product.objects.filter(id=productid).update(**data)
+                messages.success(request, '修改成功')
+                #return redirect("/usernews/") #根据需要可重定向页面
+            else:
+                product.objects.get_or_create(**data)
+                messages.success(request, '发布成功,等待审核')
+            return render(request,'webforms.html', {'form': form}) #
+        else:            
+            #print(form.errors)
+            clean_errors=form.errors.get("__all__")
+            #print(222,clean_errors)
+        return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
+    else:
+        #加载表单
+        title="产品发布与修改"
+        form = productform() 
+        return render(request,'webforms.html', {'form': form,'title':title})
+##############################################################################################################

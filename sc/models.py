@@ -80,9 +80,23 @@ class userfile(models.Model):
     class Meta:
         verbose_name="用户文件"
         verbose_name_plural=verbose_name
-
-
+#产品
+class product(models.Model):
+    name=models.CharField(verbose_name="产品名称",max_length=150)
+    img=models.ImageField(verbose_name="产品图片",upload_to="images/")
+    content = UEditorField(verbose_name='产品详情', width='100%', height=400,imagePath='pic/',filePath='upfiles/',default='')
+    user = models.ForeignKey(User,verbose_name='用户',on_delete=models.CASCADE)
+    price=models.IntegerField(verbose_name="价格")
+    repository= models.CharField(verbose_name="库存", choices=(("无货", "无货"), ("有货", "有货")), max_length=10, default="有货")
+    status= models.CharField(verbose_name="审核", choices=(
+        ("未审核", "未审核"), ("已审核", "已审核")), max_length=10, default="未审核")
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
     
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name="产品名称"
+        verbose_name_plural=verbose_name
 
     
 

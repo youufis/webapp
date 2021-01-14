@@ -48,8 +48,7 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')  # 这里获得代理ip
     return ip
-########################################################################
-#生成验证码
+##########################生成验证码###############################################
 def check_code(request):
     import io
     from . import check_code as CheckCode
@@ -130,12 +129,10 @@ def register(request):
                 # 重定向跳转
     return redirect(request.session['login_from'], '/')
 
-##################################################################################################   
-#图像审核
+######################图像审核##############百度AI图像识别########################################   
 def imgtoaudit():
     file_dir=os.path.join(settings.MEDIA_ROOT,"images")
-    fname=random.sample(os.listdir(file_dir),4)    
-    
+    fname=random.sample(os.listdir(file_dir),4)        
     for img in fname:    
         fimg=auditimg.objects.filter(imgname=img)  #审核过的图像不用再审
         if not fimg.exists():   
@@ -159,16 +156,13 @@ def imgaudit(img):
     API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
     SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
     client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
-
     #result = client.textCensorUserDefined("测试文本") #文本审核
-
     imgpath=os.path.join(settings.MEDIA_ROOT,"images",img)    
     with open(imgpath,"rb") as fp:
         img=fp.read()
     resultimg = client.imageCensorUserDefined(img)  
     #print(resultimg)
     return resultimg['conclusion']
-
 
 #调用百度AI图像识别
 def imgdetect(request,img):
@@ -209,13 +203,12 @@ def imgdetect(request,img):
 
     return render(request,"imginfo.html",locals())
 
-
 #定义一个图象审核线程
 def timgtoaudit():
     t = threading.Thread(target=imgtoaudit)       
     t.setDaemon(True)
     t.start()
-##########################################################################################
+######首页#######分类全局变量##################################################################
 #内容分类全局变量
 def global_params(request):
     catelist=cate.objects.all()
@@ -251,7 +244,7 @@ def index(request):
             ret=auditimg.objects.filter(imgname=f.imgname).delete()
         else:
             fname.append(f.imgname)
-                
+
     #最新封面
     fnamenewsobj=news.objects.filter(img__isnull=False).order_by("-id")[:3]
 
@@ -289,7 +282,7 @@ def getPage(request, news_list,pagenum):
     except (EmptyPage, InvalidPage, PageNotAnInteger):
         news_list = paginator.page(1)
     return news_list
-#########################################################################
+########类别页########详细页#################################################
 #内容类别页
 def newscate(request,cateid):
     cateobj=cate.objects.get(id=cateid)
@@ -310,9 +303,8 @@ def newsdetail(request,newsid):
     news_hitsobj=newshits.objects.filter(news=newsobj).first()
     news_hits=news_hitsobj.num
     return render(request, "newsdetail.html", locals())
-##################################################################################
 
-        
+#############搜索###############################################################        
 #标题搜索
 def search(request):
     ctx ={}
@@ -322,7 +314,7 @@ def search(request):
     newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"),10)
     return render(request,"result.html",locals())
 
-#########################################################################
+#############excel批量导入用户####################################################
 #excel批量导入用户
 @csrf_exempt
 @login_required
@@ -356,8 +348,8 @@ def uploadxls(request):
     else:
         #加载表单
         return render(request,"uploadxls.html",locals())
-######################################################################################
 
+#####用户内容页######删除内容#########编辑内容########发布和修改内容###################################
 #普通用户内容页
 @login_required
 def usernews(request):    
@@ -404,6 +396,8 @@ def savenews(request):
                 data['img']=request.FILES['img']
             newsid=request.POST.get("newsid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
             if news.objects.filter(id=newsid).exists():
+                if not request.FILES:
+                    data['img']=news.objects.filter(id=newsid).first().img
                 news.objects.filter(id=newsid).update(**data)
                 messages.success(request, '修改成功')
                 #return redirect("/usernews/") #根据需要可重定向页面
@@ -422,7 +416,8 @@ def savenews(request):
         title="内容发布与修改"
         form = newsform() 
         return render(request,'webforms.html', {'form': form,'title':title})
-#############################################################################################
+
+########抓取外部新闻链接############################################################################
 # 抓取外部新闻链接    
 def friendlylink(url="https://news.sina.com.cn/china/"):
     #url = "https://news.sina.com.cn/china/"
@@ -440,8 +435,8 @@ def friendlylink(url="https://news.sina.com.cn/china/"):
         list2.append(k.string)
     res=zip(list1[:6],list2[:6])
     return res
-#########################################################################################
 
+###用户上传文件#######用户文件页#########删除文件#############################################
 #用户上传文件
 @login_required
 def getfile(request):
@@ -501,8 +496,9 @@ def delfile(request,fileid):
             os.remove(f)
         ret=userfile.objects.filter(id=fileid).delete()
     return redirect('/userfiles/')
-#####################################################################################################
-#普通用户产品面
+
+################用户产品页######删除产品#######编辑产品######产品详细页######用户发布和修改产品######################
+#普通用户产品页
 #@login_required
 def userproduct(request,typeid=0):    
     fbool=False
@@ -544,19 +540,17 @@ def editproduct(request,productid):
 
  #产品详细页
 def productdetail(request,productid):    
-    productobj=product.objects.get(id=productid)  
-    '''  
-    if newshits.objects.filter(news=productobj):
-       res = newshits.objects.update(num=F("num")+1)
+    productobj=product.objects.get(id=productid)       
+    if producthits.objects.filter(product=productobj):
+       res = producthits.objects.update(num=F("num")+1)
     else:
-        res=newshits.objects.create(
-            news=newsobj,
+        res=producthits.objects.create(
+            product=productobj,
             num=1
         )   
-    #news_hits=newshits.objects.filter(news=newsobj).count
-    news_hitsobj=newshits.objects.filter(news=newsobj).first()
-    news_hits=news_hitsobj.num
-    '''
+    product_hitsobj=producthits.objects.filter(product=productobj).first()
+    product_hits=product_hitsobj.num
+    
     return render(request, "productdetail.html", locals())
 
 #普通用户发布和修改产品
@@ -566,13 +560,15 @@ def saveproduct(request):
     #catelist=cate.objects.all()
     if request.method == 'POST':
         form = productform(request.POST,request.FILES )
-        f=request.FILES['img']
         if form.is_valid():
             data=form.cleaned_data
             data["user"]=User.objects.get(username=request.user.username)
-            data['img']=f
+            if request.FILES:
+                data['img']=request.FILES['img']
             productid=request.POST.get("productid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
             if product.objects.filter(id=productid).exists():
+                if not request.FILES:
+                    data['img']=product.objects.filter(id=productid).first().img
                 product.objects.filter(id=productid).update(**data)
                 messages.success(request, '修改成功')
                 #return redirect("/usernews/") #根据需要可重定向页面
@@ -590,4 +586,5 @@ def saveproduct(request):
         title="产品发布与修改"
         form = productform() 
         return render(request,'webforms.html', {'form': form,'title':title})
+
 ##############################################################################################################

@@ -7,10 +7,10 @@
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h3 class="panel-title">
-						产品介绍
+						产品介绍 {% if product_hits %}  ——点击量：{{product_hits}}{% endif%}
 						<div class="row clearfix">
 							<div class="col-md-4 column">
-								<img  width=320px height=320px src="/media/{{productobj.img}}" class="img-thumbnail" />
+								<img  width=320px height=320px src="/media/pic/{{productobj.img}}" class="img-thumbnail" />
 							</div>
 							<div class="col-md-8 column">
 								产品名称：{{productobj.name}}<br><br>

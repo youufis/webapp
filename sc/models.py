@@ -59,10 +59,13 @@ class ipinfo(models.Model):
         verbose_name="访问地址"
         verbose_name_plural=verbose_name
 
+###访问量
 class newshits(models.Model):
     news=models.ForeignKey(news,verbose_name="热度",on_delete=models.CASCADE)
     num=models.IntegerField(verbose_name="次数",blank=True,null=True)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
+
+
    
 
 #让上传的文件路径动态地与user的名字有关
@@ -84,7 +87,7 @@ class userfile(models.Model):
 #产品
 class product(models.Model):
     name=models.CharField(verbose_name="产品名称",max_length=150)
-    img=models.ImageField(verbose_name="产品图片",upload_to="pic/")
+    img=models.ImageField(verbose_name="产品图片",upload_to="pic/",blank=True,null=True)
     content = UEditorField(verbose_name='产品详情', width='100%', height=400,imagePath='pic/',filePath='upfiles/',default='')
     user = models.ForeignKey(User,verbose_name='用户',on_delete=models.CASCADE)
     price=models.IntegerField(verbose_name="价格")
@@ -99,6 +102,9 @@ class product(models.Model):
         verbose_name="产品名称"
         verbose_name_plural=verbose_name
 
-    
+class producthits(models.Model):
+    product=models.ForeignKey(product,verbose_name="热度",on_delete=models.CASCADE)
+    num=models.IntegerField(verbose_name="次数",blank=True,null=True)
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)    
 
     

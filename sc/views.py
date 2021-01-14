@@ -224,9 +224,7 @@ def global_params(request):
 
 #首页
 def index(request):
-    timgtoaudit() #开启线程进行图像审核
-    fname=[]
-    fnamenew=[]
+    #timgtoaudit() #开启/关闭线程进行封面图像审核    
     hostip=get_host_ip()
     clientip=get_client_ip(request)
     #来访ip记数
@@ -246,23 +244,17 @@ def index(request):
 
     #图片随机展示
     fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
+    fname=[]
     for f in fnameobj:
         imgpath=os.path.join(settings.MEDIA_ROOT,"images",f.imgname)
         if not os.path.exists(imgpath):#如果不存在，删除图像库记录         
             ret=auditimg.objects.filter(imgname=f.imgname).delete()
         else:
             fname.append(f.imgname)
-    
-    #最新图片
-    fnamenewobj=auditimg.objects.all().order_by("-id")[:3]
-    for f in fnamenewobj:
-        imgpath=os.path.join(settings.MEDIA_ROOT,"images",f.imgname)
-        if not os.path.exists(imgpath):#如果不存在，删除图像库记录
-            #os.remove(imgpath)            
-            ret=auditimg.objects.filter(imgname=f.imgname).delete()
-        else:
-            fnamenew.append(f.imgname)
-   
+                
+    #最新封面
+    fnamenewsobj=news.objects.filter(img__isnull=False).order_by("-id")[:3]
+
     #取出所有类别
     catelist=cate.objects.all()
     newslist=[]
@@ -318,37 +310,8 @@ def newsdetail(request,newsid):
     news_hitsobj=newshits.objects.filter(news=newsobj).first()
     news_hits=news_hitsobj.num
     return render(request, "newsdetail.html", locals())
+##################################################################################
 
-#普通用户发布和修改内容
-@csrf_exempt
-@login_required
-def savenews(request):    
-    #catelist=cate.objects.all()
-    if request.method == 'POST':
-        form = newsform(request.POST)
-        if form.is_valid():
-            data=form.cleaned_data
-            data["user"]=User.objects.get(username=request.user.username)
-            newsid=request.POST.get("newsid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
-            if news.objects.filter(id=newsid).exists():
-                news.objects.filter(id=newsid).update(**data)
-                messages.success(request, '修改成功')
-                #return redirect("/usernews/") #根据需要可重定向页面
-            else:
-                news.objects.get_or_create(**data)
-                messages.success(request, '发布成功,等待审核')
-            return render(request,'webforms.html', {'form': form}) #
-        else:
-            
-            #print(form.errors)
-            clean_errors=form.errors.get("__all__")
-            #print(222,clean_errors)
-        return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
-    else:
-        #加载表单
-        title="内容发布与修改"
-        form = newsform() 
-        return render(request,'webforms.html', {'form': form,'title':title})
         
 #标题搜索
 def search(request):
@@ -427,6 +390,38 @@ def editnews(request,newsid):
         #news.objects.filter(id=newsid).update(**request.POST)
         return  redirect('/usernews/') #编辑成功后重定向到用户内容页
 
+#普通用户发布和修改内容
+@csrf_exempt
+@login_required
+def savenews(request):    
+    #catelist=cate.objects.all()
+    if request.method == 'POST':
+        form = newsform(request.POST,request.FILES)
+        if form.is_valid():
+            data=form.cleaned_data
+            data["user"]=User.objects.get(username=request.user.username)
+            if request.FILES:
+                data['img']=request.FILES['img']
+            newsid=request.POST.get("newsid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
+            if news.objects.filter(id=newsid).exists():
+                news.objects.filter(id=newsid).update(**data)
+                messages.success(request, '修改成功')
+                #return redirect("/usernews/") #根据需要可重定向页面
+            else:
+                news.objects.get_or_create(**data)
+                messages.success(request, '发布成功,等待审核')
+            return render(request,'webforms.html', {'form': form}) #
+        else:
+            
+            #print(form.errors)
+            clean_errors=form.errors.get("__all__")
+            #print(222,clean_errors)
+        return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
+    else:
+        #加载表单
+        title="内容发布与修改"
+        form = newsform() 
+        return render(request,'webforms.html', {'form': form,'title':title})
 #############################################################################################
 # 抓取外部新闻链接    
 def friendlylink(url="https://news.sina.com.cn/china/"):

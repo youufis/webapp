@@ -13,9 +13,10 @@ class newsform(forms.Form):
 
     title = forms.CharField(max_length=100, label="标题",
                             widget=widgets.TextInput(attrs={'size': '50%'}))
+    img=forms.ImageField(label="图片封面",allow_empty_file=True,required=False)
     content = forms.CharField(label="内容", widget=UEditorWidget(
         {"width":"98%", "height": 400,
-         "imagePath": 'images/', "filePath": 'upfiles/'}))
+         "imagePath": 'pic/', "filePath": 'upfiles/'}))
     # toolbars:full(default), besttome, mini and normal!')
 
 #用户上传文件

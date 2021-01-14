@@ -28,7 +28,8 @@ class auditimg(models.Model):
 
 class news(models.Model):
     title = models.CharField(verbose_name="标题", max_length=100)
-    content = UEditorField(verbose_name='内容', width='100%', height=400,imagePath='images/',filePath='upfiles/',default='')
+    img=models.ImageField(verbose_name="图片封面",upload_to="images/",blank=True,null=True)
+    content = UEditorField(verbose_name='内容', width='100%', height=400,imagePath='pic/',filePath='upfiles/',default='')
     cate = models.ForeignKey(cate, verbose_name="分类", on_delete=models.CASCADE)
     user = models.ForeignKey(User, verbose_name='用户',related_name='user',on_delete=models.CASCADE,blank=True,null=True)
     create_time = models.DateTimeField(verbose_name="时间", auto_now_add=True)
@@ -83,7 +84,7 @@ class userfile(models.Model):
 #产品
 class product(models.Model):
     name=models.CharField(verbose_name="产品名称",max_length=150)
-    img=models.ImageField(verbose_name="产品图片",upload_to="images/")
+    img=models.ImageField(verbose_name="产品图片",upload_to="pic/")
     content = UEditorField(verbose_name='产品详情', width='100%', height=400,imagePath='pic/',filePath='upfiles/',default='')
     user = models.ForeignKey(User,verbose_name='用户',on_delete=models.CASCADE)
     price=models.IntegerField(verbose_name="价格")

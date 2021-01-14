@@ -5,7 +5,7 @@
 
 <div class="row clearfix">
 	<div class="col-md-3 column">
-		最新图片
+		封面图片
 		<div id="myCarousel" class="carousel slide">
 			<!-- 轮播（Carousel）指标 -->
 			<ol class="carousel-indicators">
@@ -15,9 +15,9 @@
 			</ol>   
 			<!-- 轮播（Carousel）项目 -->
 			<div class="carousel-inner">
-				{% for img in fnamenew %}
+				{% for newsitem in fnamenewsobj %}
 				<div {% ifequal forloop.counter 1 %} class="item active" {% else %} class="item" {% endifequal%}>
-					<a href="{% url 'imgdetect' img %}"><img  src="/media/images/{{img}}" class="img-thumbnail" /></a>
+					<a href="{% url 'newsdetail' newsitem.id %}"><img  src="/media/{{newsitem.img}}" class="img-thumbnail" /></a>
 				</div>
 				{% endfor %}
 			</div>
@@ -87,7 +87,11 @@
 		<ul>
 			{% for productitem in producttop6 %}
 			<li>
-				<a href="{%url 'productdetail' productitem.id %}">{{productitem.name}}({{productitem.create_time|date:"y/m/j"}})</a>
+				{% if productitem.name|length > 14 %}
+				<a href="{% url 'productdetail' productitem.id %}">{{productitem.name|truncatechars:14}}…({{productitem.create_time|date:"y/m/j"}})</a>
+				 {% else %}
+				 <a href="{% url 'productdetail' productitem.id %}">{{productitem.name}}({{productitem.create_time|date:"y/m/j"}})</a>
+				 {% endif %}
 			</li>
 		{% endfor %}
 		</ul>
@@ -105,6 +109,7 @@
 	</div>
 
 </div>
+<h3>封面图片</h3>
 {% for img in fname %}
 <div class="row clearfix">
 	<div class="col-md-4 column">

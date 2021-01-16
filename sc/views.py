@@ -171,7 +171,7 @@ def txtaudit(cont):
     API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
     SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
     client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
-    result = client.textCensorUserDefined("测试文本")
+    result = client.textCensorUserDefined(cont)
     print(result)
     return result['conclusion']
 
@@ -661,5 +661,6 @@ def signbook(request):
             return render(request,"signbook.html",locals())
         else:
             messages.success(request, '审核不通过')
+            return render(request,"signbook.html",locals())
     else:
         return render(request,"signbook.html",locals())

@@ -15,7 +15,7 @@
             <div class="panel-body">
                 {{ form.media }}
 
-<form action="{% url 'addnews' %}" method="post">
+<form action="{% url 'addnews' %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="text" id="newsid" name="newsid" hidden=True value="{{newsid}}" />
     {{ content_form }}

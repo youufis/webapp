@@ -10,7 +10,7 @@
 						产品介绍 {% if product_hits %}  ——点击量：{{product_hits}}{% endif%}
 						<div class="row clearfix">
 							<div class="col-md-5 column">
-								<img  width=400px height=400px src="/media/pic/{{productobj.img}}" class="img-thumbnail" />
+								<img  width=400px height=400px src="/media/{{productobj.img}}" class="img-thumbnail" />
 							</div>
 							<div class="col-md-7 column">
 								产品名称：{{productobj.name}}<br><br>
@@ -30,7 +30,12 @@
 				</div>
 				<div class="panel-footer">
 					{{productobj.create_time}}  发布人:{{productobj.user}}
+					{% for newsitem in newslist%}
+					<h5>{{newsitem.user}}:{{newsitem.msg}}</h5>
+					{% endfor %}
+					{% include 'pagination.html' %}
 				</div>
+				<iframe frameborder=no scrolling=no  width=100%  height=100% src={% url 'signbook' %}></iframe>
 			</div>
 		</div>
 	</div>

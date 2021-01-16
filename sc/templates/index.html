@@ -17,7 +17,7 @@
 			<div class="carousel-inner">
 				{% for newsitem in fnamenewsobj %}
 				<div {% ifequal forloop.counter 1 %} class="item active" {% else %} class="item" {% endifequal%}>
-					<a href="{% url 'newsdetail' newsitem.id %}"><img  src="/media/{{newsitem.img}}" class="img-thumbnail" /></a>
+					<a href="{% url 'newsdetail' newsitem.id %}"><img src="/media/{{newsitem.img}}" class="img-thumbnail" /></a>
 				</div>
 				{% endfor %}
 			</div>
@@ -87,8 +87,8 @@
 		<ul>
 			{% for productitem in producttop6 %}
 			<li>
-				{% if productitem.name|length > 14 %}
-				<a href="{% url 'productdetail' productitem.id %}">{{productitem.name|truncatechars:14}}…({{productitem.create_time|date:"y/m/j"}})</a>
+				{% if productitem.name|length > 20 %}
+				<a href="{% url 'productdetail' productitem.id %}">{{productitem.name|truncatechars:20}}…({{productitem.create_time|date:"y/m/j"}})</a>
 				 {% else %}
 				 <a href="{% url 'productdetail' productitem.id %}">{{productitem.name}}({{productitem.create_time|date:"y/m/j"}})</a>
 				 {% endif %}

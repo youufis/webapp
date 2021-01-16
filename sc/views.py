@@ -164,6 +164,17 @@ def imgaudit(img):
     #print(resultimg)
     return resultimg['conclusion']
 
+def txtaudit(cont):    
+    from aip import AipContentCensor
+    #可以自行百度ai申请
+    APP_ID = '23489175'
+    API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
+    SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
+    client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
+    result = client.textCensorUserDefined("测试文本")
+    print(result)
+    return result['conclusion']
+
 #调用百度AI图像识别
 def imgdetect(request,img):
     from aip import AipImageClassify
@@ -246,7 +257,7 @@ def index(request):
             fname.append(f.imgname)
 
     #最新封面
-    fnamenewsobj=news.objects.filter(img__isnull=False).order_by("-id")[:3]
+    fnamenewsobj=news.objects.filter(Q(img__isnull=False)&Q(status='已审核')).order_by("-id")[:3]
 
     #取出所有类别
     catelist=cate.objects.all()
@@ -392,25 +403,34 @@ def savenews(request):
         if form.is_valid():
             data=form.cleaned_data
             data["user"]=User.objects.get(username=request.user.username)
-            if request.FILES:
-                data['img']=request.FILES['img']
             newsid=request.POST.get("newsid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
             if news.objects.filter(id=newsid).exists():
                 if not request.FILES:
                     data['img']=news.objects.filter(id=newsid).first().img
-                news.objects.filter(id=newsid).update(**data)
+                else:
+                    data['img']=request.FILES['img']
+                #news.objects.filter(id=newsid).update(**data) #update会丢失img上传路径
+
+                newsobj=news.objects.get(id=newsid)
+                newsobj.user=data["user"]
+                newsobj.cate=data["cate"]
+                newsobj.title=data["title"]
+                newsobj.img=data["img"]
+                newsobj.content=data["content"]
+                newsobj.save()
+
                 messages.success(request, '修改成功')
                 #return redirect("/usernews/") #根据需要可重定向页面
+                return render(request,'webforms.html', {'form': form})
             else:
                 news.objects.get_or_create(**data)
                 messages.success(request, '发布成功,等待审核')
-            return render(request,'webforms.html', {'form': form}) #
+                return render(request,'webforms.html', {'form': form}) #
         else:
-            
             #print(form.errors)
             clean_errors=form.errors.get("__all__")
             #print(222,clean_errors)
-        return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
+            return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
     else:
         #加载表单
         title="内容发布与修改"
@@ -540,7 +560,17 @@ def editproduct(request,productid):
 
  #产品详细页
 def productdetail(request,productid):    
-    productobj=product.objects.get(id=productid)       
+    productobj=product.objects.get(id=productid)      
+    request.session['id']=productid    
+
+    '''
+    imgurl=str(productobj.img.url)#图片路径，有待研究
+    if "pic"  in imgurl.split("/"):
+        ispic=True
+    else:
+        ispic=False
+    '''
+
     if producthits.objects.filter(product=productobj):
        res = producthits.objects.update(num=F("num")+1)
     else:
@@ -550,7 +580,8 @@ def productdetail(request,productid):
         )   
     product_hitsobj=producthits.objects.filter(product=productobj).first()
     product_hits=product_hitsobj.num
-    
+
+    newslist=getPage(request,msgbook.objects.filter(product=productobj).order_by("-create_time"),10)
     return render(request, "productdetail.html", locals())
 
 #普通用户发布和修改产品
@@ -563,13 +594,22 @@ def saveproduct(request):
         if form.is_valid():
             data=form.cleaned_data
             data["user"]=User.objects.get(username=request.user.username)
-            if request.FILES:
-                data['img']=request.FILES['img']
             productid=request.POST.get("productid") #接收修改内容的id，如果id存在，就修改，否则就新增内容
             if product.objects.filter(id=productid).exists():
                 if not request.FILES:
                     data['img']=product.objects.filter(id=productid).first().img
-                product.objects.filter(id=productid).update(**data)
+                else:
+                    data['ing']=request.FILES['img']
+                #product.objects.filter(id=productid).update(**data)
+                pobj=product.objects.get(id=productid)
+                pobj.name=data["name"]
+                pobj.img=data['img']
+                pobj.content=data['content']
+                pobj.user=data['user']
+                pobj.price=data['price']
+                pobj.repository=data['repository']
+                pobj.save()
+
                 messages.success(request, '修改成功')
                 #return redirect("/usernews/") #根据需要可重定向页面
             else:
@@ -587,4 +627,39 @@ def saveproduct(request):
         form = productform() 
         return render(request,'webforms.html', {'form': form,'title':title})
 
-##############################################################################################################
+########产品留言#########################################################################################
+def signbook(request):  
+    ipaddr=get_client_ip(request)
+    id=request.session['id']
+    productobj=product.objects.filter(id=id).first()
+    if request.POST:
+        msg=request.POST['s']
+        #print(id,msg,request.user.username)
+        #print(ret)
+        if len(msg)>150:
+            messages.success(request, '字数太多')
+            return render(request,"signbook.html",locals())
+        ret=txtaudit(msg)
+        if ret in ["合规"]:
+            if request.session.get('username'):
+                username= request.session["username"]
+                user=User.objects.get(username=request.user.username)
+                ret=msgbook.objects.create(
+                    user=user,
+                    product=productobj,
+                    msg=msg,
+                    ipaddr=ipaddr,
+                )
+            
+            else:
+                ret=msgbook.objects.create(
+                    product=productobj,
+                    msg=msg,
+                    ipaddr=ipaddr,
+                )
+            messages.success(request, '审核通过')
+            return render(request,"signbook.html",locals())
+        else:
+            messages.success(request, '审核不通过')
+    else:
+        return render(request,"signbook.html",locals())

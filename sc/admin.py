@@ -90,10 +90,16 @@ class productadmin(admin.ModelAdmin):
     list_display=['id','name','user','img','price','repository','status','create_time']
     list_per_page=20
 
+#用户留言
+class msgbookadmin(admin.ModelAdmin):
+    list_display=['id','user','msg','ipaddr','create_time']
+    list_per_page=20
+
 admin.site.register(cate,cateadmin)
 admin.site.register(news,newsadmin)
 admin.site.register(ipinfo,ipinfoadmin)
 admin.site.register(auditimg,auditimgadmin)
 admin.site.register(userfile,userfileadmin)
 admin.site.register(product,productadmin)
+admin.site.register(msgbook,msgbookadmin)
 

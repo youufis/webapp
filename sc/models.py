@@ -5,8 +5,7 @@ from django.conf import settings
 import os
 # Create your models here.
 
-
-
+#内容分类
 class cate(models.Model):
     name = models.CharField(verbose_name="分类", max_length=20)
     def __str__(self):
@@ -25,7 +24,7 @@ class auditimg(models.Model):
     class Meta:
         verbose_name="审核图像"
         verbose_name_plural=verbose_name
-
+#内容
 class news(models.Model):
     title = models.CharField(verbose_name="标题", max_length=100)
     img=models.ImageField(verbose_name="图片封面",upload_to="images/",blank=True,null=True)
@@ -43,7 +42,7 @@ class news(models.Model):
     class Meta:
         verbose_name = "新闻内容"
         verbose_name_plural = verbose_name
-
+#来访信息
 class ipinfo(models.Model):
     caption=models.CharField(verbose_name="地址",max_length=20,default="IP")
     ipaddr=models.GenericIPAddressField(verbose_name="IP地址")
@@ -64,7 +63,6 @@ class newshits(models.Model):
     news=models.ForeignKey(news,verbose_name="热度",on_delete=models.CASCADE)
     num=models.IntegerField(verbose_name="次数",blank=True,null=True)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
-
 
    
 
@@ -101,10 +99,23 @@ class product(models.Model):
     class Meta:
         verbose_name="产品名称"
         verbose_name_plural=verbose_name
-
+#产品访问
 class producthits(models.Model):
     product=models.ForeignKey(product,verbose_name="热度",on_delete=models.CASCADE)
     num=models.IntegerField(verbose_name="次数",blank=True,null=True)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)    
 
-    
+#留言信息
+class msgbook(models.Model):
+    user=models.ForeignKey(User,verbose_name="用户",on_delete=models.CASCADE,blank=True,null=True)
+    product=models.ForeignKey(product,verbose_name="产品",on_delete=models.CASCADE)
+    msg=models.CharField(verbose_name="留言",max_length=150)
+    ipaddr=models.GenericIPAddressField(verbose_name="IP地址")
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
+
+    def __str__(self):
+        return self.ipaddr
+    class Meta:
+        verbose_name="留言"
+        verbose_name_plural=verbose_name
+

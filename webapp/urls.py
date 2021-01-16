@@ -45,4 +45,5 @@ urlpatterns = [
     path("editproduct/<int:productid>",views.editproduct,name="editproduct"),
     path('productdetail/<int:productid>',views.productdetail,name="productdetail"),
     path('addproduct/',views.saveproduct,name="addproduct"),
+    path('signbook/',views.signbook,name="signbook"),
 ]

@@ -33,3 +33,7 @@ class productform(forms.Form):
     content = forms.CharField(label="产品详情", widget=UEditorWidget(
         {"width":"98%", "height": 400,
          "imagePath": 'pic/', "filePath": 'upfiles/'}))
+
+#留言
+class msgbookform(forms.Form):
+    msg=forms.CharField(max_length=150, label="留言", widget=widgets.Textarea(attrs={'cols':50,'rows':5}))

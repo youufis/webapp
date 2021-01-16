@@ -1,0 +1,14 @@
+<form role="form" action=" /signbook/" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+    <label for="name">请文明留言</label>：<br>
+    <textarea name="s"  class="form-control" rows="4" style="width:60%"></textarea>
+    <br>
+    <input type="submit" value="提交">
+    </div>
+    {% if messages %}
+    {% for message in messages %}
+     {{ message }}
+    {% endfor %}
+{% endif %}
+    </form>

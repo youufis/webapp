@@ -1,8 +1,7 @@
 <form role="form" action=" /signbook/" method="post">
     {% csrf_token %}
     <div class="form-group">
-    <label for="name">请文明留言</label>：<br>
-    <textarea name="s"  class="form-control" rows="4" style="width:60%"></textarea>
+    <textarea name="s"  class="form-control" placeholder="请文明留言" rows="3" style="width:98%"></textarea>
     <br>
     <input type="submit" value="提交">
     </div>

@@ -214,11 +214,14 @@ def imgdetect(request,img):
 
     return render(request,"imginfo.html",locals())
 
-#定义一个图象审核线程
-def timgtoaudit():
-    t = threading.Thread(target=imgtoaudit)       
-    t.setDaemon(True)
-    t.start()
+#定义一个图象审核线程，默认不开启
+def timgtoaudit(bflag=False):
+    if bflag:
+        t = threading.Thread(target=imgtoaudit)       
+        t.setDaemon(True)
+        t.start()
+    else:
+        pass
 ######首页#######分类全局变量##################################################################
 #内容分类全局变量
 def global_params(request):
@@ -228,7 +231,9 @@ def global_params(request):
 
 #首页
 def index(request):
-    #timgtoaudit() #开启/关闭线程进行封面图像审核    
+    bflag=False #关闭开启线程审核封面图像
+    timgtoaudit(bflag) #开启/关闭线程进行封面图像审核
+
     hostip=get_host_ip()
     clientip=get_client_ip(request)
     #来访ip记数
@@ -246,15 +251,22 @@ def index(request):
     ret= ipinfo.objects.aggregate(total=Sum('num'))    
     hits=ret['total']
 
-    #图片随机展示
-    fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
+    #如果开启线程审核图像
     fname=[]
-    for f in fnameobj:
-        imgpath=os.path.join(settings.MEDIA_ROOT,"images",f.imgname)
-        if not os.path.exists(imgpath):#如果不存在，删除图像库记录         
-            ret=auditimg.objects.filter(imgname=f.imgname).delete()
-        else:
-            fname.append(f.imgname)
+    if bflag:
+        #图片随机展示
+        fnameobj=auditimg.objects.all().order_by('?')[:3]    #图像库随机取4个
+        for f in fnameobj:
+            imgpath=os.path.join(settings.MEDIA_ROOT,"images",f.imgname)
+            if not os.path.exists(imgpath):#如果不存在，删除图像库记录         
+                ret=auditimg.objects.filter(imgname=f.imgname).delete()
+            else:
+                fname.append(f.imgname)
+    else:
+        fpath=os.path.join(settings.MEDIA_ROOT,'images')
+        fname=random.sample(os.listdir(fpath),3) #封面目录随机取3图像
+        #for f in os.listdir(fpath):
+            #print(f)
 
     #最新封面
     fnamenewsobj=news.objects.filter(Q(img__isnull=False)&Q(status='已审核')).order_by("-id")[:3]

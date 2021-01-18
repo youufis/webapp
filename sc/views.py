@@ -97,10 +97,12 @@ def logIn(request):
 
 @csrf_exempt
 def register(request):
-    #catelist=cate.objects.all()
     if request.method == 'GET':
         request.session['login_from'] = request.META.get('HTTP_REFERER', '/')
         return render(request, 'register.html', locals())
+        #暂停用户注册
+        #msg="暂停用户注册"
+        #return render(request, 'base.html', locals())
     elif request.method == 'POST':
         # 接收表单数据
         username = request.POST.get("username", '')
@@ -529,11 +531,12 @@ def delfile(request,fileid):
         ret=userfile.objects.filter(id=fileid).delete()
     return redirect('/userfiles/')
 
-################用户产品页######删除产品#######编辑产品######产品详细页######用户发布和修改产品######################
+################用户产品页######删除产品#######编辑产品######产品详细页######用户发布和修改产品######产品分类页##########
 #普通用户产品页
 #@login_required
 def userproduct(request,typeid=0):    
     fbool=False
+    
     #管理页面
     if typeid==0: 
         fbool=True
@@ -574,15 +577,7 @@ def editproduct(request,productid):
 def productdetail(request,productid):    
     productobj=product.objects.get(id=productid)      
     request.session['id']=productid    
-
-    '''
-    imgurl=str(productobj.img.url)#图片路径，有待研究
-    if "pic"  in imgurl.split("/"):
-        ispic=True
-    else:
-        ispic=False
-    '''
-
+   
     if producthits.objects.filter(product=productobj):
        res = producthits.objects.update(num=F("num")+1)
     else:
@@ -615,6 +610,7 @@ def saveproduct(request):
                 #product.objects.filter(id=productid).update(**data)
                 pobj=product.objects.get(id=productid)
                 pobj.name=data["name"]
+                pobj.cate=data["cate"]
                 pobj.img=data['img']
                 pobj.content=data['content']
                 pobj.user=data['user']
@@ -638,6 +634,12 @@ def saveproduct(request):
         title="产品发布与修改"
         form = productform() 
         return render(request,'webforms.html', {'form': form,'title':title})
+
+#产品分类页
+def pcate(request,cateid):
+    cateobj=productcate.objects.get(id=cateid)
+    newslist=getPage(request,product.objects.filter(cate=cateobj).order_by('-create_time'),6)
+    return render(request, "productcate.html", locals())
 
 ########产品留言#########################################################################################
 def signbook(request):  
@@ -676,3 +678,4 @@ def signbook(request):
             return render(request,"signbook.html",locals())
     else:
         return render(request,"signbook.html",locals())
+####################################################################################################

@@ -82,9 +82,23 @@ class userfile(models.Model):
     class Meta:
         verbose_name="用户文件"
         verbose_name_plural=verbose_name
+
+
+#产品类别
+class productcate(models.Model):   
+    name= models.CharField(default="",max_length=30,verbose_name="类别名")   
+    cate=models.ForeignKey('self',null=True,blank=True,verbose_name="父分类", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name = "产品类别"
+        verbose_name_plural = verbose_name
+
 #产品
 class product(models.Model):
     name=models.CharField(verbose_name="产品名称",max_length=150)
+    cate=models.ForeignKey(productcate,verbose_name="分类",null=True,blank=True,on_delete=models.CASCADE)
     img=models.ImageField(verbose_name="产品图片",upload_to="pic/",blank=True,null=True)
     content = UEditorField(verbose_name='产品详情', width='100%', height=400,imagePath='pic/',filePath='upfiles/',default='')
     user = models.ForeignKey(User,verbose_name='用户',on_delete=models.CASCADE)

@@ -85,9 +85,15 @@ class userfileadmin(admin.ModelAdmin):
     list_display=['id','username',"name","file","create_time"]
     list_per_page = 20
 
+#产品类别
+class productcateadmin(admin.ModelAdmin):
+    list_display=['id','name','cate']
+
+
+
 #产品
 class productadmin(admin.ModelAdmin):
-    list_display=['id','name','user','img','price','repository','status','create_time']
+    list_display=['id','name','cate','user','img','price','repository','status','create_time']
     list_per_page=20
 
 #用户留言
@@ -101,5 +107,6 @@ admin.site.register(ipinfo,ipinfoadmin)
 admin.site.register(auditimg,auditimgadmin)
 admin.site.register(userfile,userfileadmin)
 admin.site.register(product,productadmin)
+admin.site.register(productcate,productcateadmin)
 admin.site.register(msgbook,msgbookadmin)
 

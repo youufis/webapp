@@ -44,6 +44,7 @@ urlpatterns = [
     path("delproduct/<int:productid>",views.delproduct,name="delproduct"),
     path("editproduct/<int:productid>",views.editproduct,name="editproduct"),
     path('productdetail/<int:productid>',views.productdetail,name="productdetail"),
+    path('productcate/<cateid>',views.pcate,name="productcate"),
     path('addproduct/',views.saveproduct,name="addproduct"),
     path('signbook/',views.signbook,name="signbook"),
 ]

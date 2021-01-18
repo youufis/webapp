@@ -25,8 +25,10 @@ class fileform(forms.Form):
 
 #普通用户发布和修改产品表单
 class productform(forms.Form):
+    catelist=productcate.objects.all()
     name = forms.CharField(max_length=100, label="产品名称",
                             widget=widgets.TextInput(attrs={'size': '50%'}))
+    cate=forms.ModelChoiceField(queryset=catelist,label="类别",initial=catelist.first().name)
     img=forms.ImageField(label="产品图片",allow_empty_file=True,required=False)
     price=forms.IntegerField(label="产品价格")
     repository=forms.ChoiceField(label="库存",choices=(("无货", "无货"), ("有货", "有货")),initial="有货" )

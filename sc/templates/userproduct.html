@@ -18,6 +18,9 @@
                         产品名称
                     </th>
                     <th>
+                        产品类别
+                    </th>
+                    <th>
                         价格
                     </th>
                     <th>
@@ -49,6 +52,9 @@
                         {% else %}
                         <a href="{% url 'productdetail' newsitem.id %}">{{newsitem.name}}</a>
                         {% endif %}
+                    </td>
+                    <td>
+                        {{newsitem.cate.cate}}-<a href="{% url 'productcate' newsitem.cate.id %}">{{newsitem.cate}}</a>
                     </td>
                     <td>
                         {{newsitem.price}}

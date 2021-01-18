@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} {{cateobj.name}}-分类{% endblock %}
+{% block mainbody %}
+
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+						{{cateobj.name}}
+					</h3>
+				</div>
+				<div class="panel-body">
+					<ul>
+                        {% for newsitem in newslist %}
+                        <li>
+                            <a href="{% url 'productdetail' newsitem.id %}">{{newsitem.name}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+				</div>
+				<div class="panel-footer">
+                    {% include 'pagination.html' %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

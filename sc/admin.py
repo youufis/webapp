@@ -93,8 +93,23 @@ class productcateadmin(admin.ModelAdmin):
 
 #产品
 class productadmin(admin.ModelAdmin):
+    exclude = ('user',)#排除
     list_display=['id','name','cate','user','img','price','repository','status','create_time']
     list_per_page=20
+
+     #自定义actions 审核发布
+    actions=['query_status']
+    def query_status(self,request,queryset):       
+        queryset.update(status="已审核")     
+
+        #自动保存登录用户
+    def save_model(self, request, obj, form, change):        
+        obj.user = request.user
+        obj.save()
+
+    
+    #显示名称
+    query_status.short_description="审核所选的 内容"
 
 #用户留言
 class msgbookadmin(admin.ModelAdmin):

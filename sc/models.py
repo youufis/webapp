@@ -8,6 +8,7 @@ import os
 #内容分类
 class cate(models.Model):
     name = models.CharField(verbose_name="分类", max_length=20)
+    pcate=models.ForeignKey('self',null=True,blank=True,verbose_name="父分类", on_delete=models.CASCADE)
     def __str__(self):
         return self.name
 

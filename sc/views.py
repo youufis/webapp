@@ -225,17 +225,34 @@ def timgtoaudit(bflag=False):
     else:
         pass
 ######首页#######分类全局变量##################################################################
-#内容分类全局变量
+#内容分类和产品分类全局变量
 def global_params(request):
-    catelist=cate.objects.all()
-    #print(catelist)
-    return {"catelist":catelist}
+    #catelist=cate.objects.all()     
+    catelist=cate.objects.filter(pcate__isnull=True)    
+    nslist=[]
+    for p in catelist:
+        nslist.append(cate.objects.filter(pcate__isnull=False,pcate=p.id))
+
+    #print(catelist,newslist)
+    newscatelist=zip(catelist,nslist)
+
+    plist=productcate.objects.filter(cate__isnull=True)
+    slist=[]
+    for p in plist:
+        slist.append(productcate.objects.filter(cate__isnull=False,cate=p.id))
+    #print(slist)    
+    pslist=zip(plist,slist)
+    return {
+        "newscatelist":newscatelist,
+        "pslist":pslist,
+        }
 
 #首页
 def index(request):
     bflag=False #关闭开启线程审核封面图像
     timgtoaudit(bflag) #开启/关闭线程进行封面图像审核
 
+  
     hostip=get_host_ip()
     clientip=get_client_ip(request)
     #来访ip记数
@@ -274,12 +291,13 @@ def index(request):
     fnamenewsobj=news.objects.filter(Q(img__isnull=False)&Q(status='已审核')).order_by("-id")[:3]
 
     #取出所有类别
-    catelist=cate.objects.all()
+    catelist=cate.objects.filter(pcate__isnull=False)
     newslist=[]
     #按类别返回内容
     for cateobj in catelist:        
         newslist.append(getPage(request,news.objects.filter(Q(cate=cateobj)&Q(status='已审核')).order_by("-create_time"),6))
     catenewslist=zip(catelist,newslist)
+
     #最新内容top6
     newstop6=news.objects.filter(status="已审核").order_by("-create_time")[:11]
     #最新热点top6

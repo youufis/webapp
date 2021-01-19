@@ -23,7 +23,7 @@ class newsadmin(admin.ModelAdmin):
     exclude = ('user',)#排除
     list_display=['id','title','img','cate','user','create_time','status'] #可显示的字段
     
-    list_filter=('status','create_date') #过滤选项
+    list_filter=('status','create_time') #过滤选项
     ordering=('-id','title','create_time','cate','user') # 排序字段
     list_per_page = 20
   
@@ -47,7 +47,8 @@ class newsadmin(admin.ModelAdmin):
     #对外键进行设置初值
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):                                                                                                             
         if db_field.name == 'cate':                                                
-            kwargs['initial'] = 1                                   
+            kwargs['initial'] = cate.objects.filter(pcate__isnull=False).first()   
+            kwargs['queryset']= cate.objects.filter(pcate__isnull=False)                               
         return super(newsadmin, self).formfield_for_foreignkey(                     
             db_field, request, **kwargs )
     
@@ -97,6 +98,9 @@ class productadmin(admin.ModelAdmin):
     list_display=['id','name','cate','user','img','price','repository','status','create_time']
     list_per_page=20
 
+    list_filter=('status','create_time') #过滤选项
+    ordering=('-id','name','create_time','cate','user') # 排序字段
+
      #自定义actions 审核发布
     actions=['query_status']
     def query_status(self,request,queryset):       
@@ -110,6 +114,31 @@ class productadmin(admin.ModelAdmin):
     
     #显示名称
     query_status.short_description="审核所选的 内容"
+
+        #返回当前用户发布内容的数据集
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+   
+    #对外键进行设置初值
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):                                                                                                             
+        if db_field.name == 'cate':                                                
+            kwargs['initial'] =productcate.objects.filter(cate__isnull=False).first()
+            kwargs['queryset']= productcate.objects.filter(cate__isnull=False)                               
+        return super(productadmin, self).formfield_for_foreignkey(                     
+            db_field, request, **kwargs )
+    
+    #对字段进行设置初值
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        field =  super(productadmin, self).formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'status':
+            field.initial = '已审核'
+        return field
+
+     # 按产品和用户user搜索
+    search_fields = ['name','user__username','status'] 
 
 #用户留言
 class msgbookadmin(admin.ModelAdmin):

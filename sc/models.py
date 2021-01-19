@@ -41,7 +41,7 @@ class news(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = "新闻内容"
+        verbose_name = "内容详情"
         verbose_name_plural = verbose_name
 #来访信息
 class ipinfo(models.Model):
@@ -56,7 +56,7 @@ class ipinfo(models.Model):
         return self.caption
 
     class Meta:
-        verbose_name="访问地址"
+        verbose_name="访问记录"
         verbose_name_plural=verbose_name
 
 ###访问量
@@ -112,7 +112,7 @@ class product(models.Model):
     def __str__(self):
         return self.name
     class Meta:
-        verbose_name="产品名称"
+        verbose_name="产品详情"
         verbose_name_plural=verbose_name
 #产品访问
 class producthits(models.Model):
@@ -131,6 +131,6 @@ class msgbook(models.Model):
     def __str__(self):
         return self.ipaddr
     class Meta:
-        verbose_name="留言"
+        verbose_name="用户留言"
         verbose_name_plural=verbose_name
 

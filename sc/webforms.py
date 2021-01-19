@@ -7,7 +7,7 @@ from DjangoUeditor.forms import UEditorField, UEditorModelForm
 
 #普通用户发布和修改内容表单
 class newsform(forms.Form):
-    catelist = cate.objects.all()
+    catelist = cate.objects.filter(pcate__isnull=False)
     cate = forms.ModelChoiceField(
         queryset=catelist, label="类别", initial=catelist.first().name)
 
@@ -25,7 +25,7 @@ class fileform(forms.Form):
 
 #普通用户发布和修改产品表单
 class productform(forms.Form):
-    catelist=productcate.objects.all()
+    catelist=productcate.objects.filter(cate__isnull=False)
     name = forms.CharField(max_length=100, label="产品名称",
                             widget=widgets.TextInput(attrs={'size': '50%'}))
     cate=forms.ModelChoiceField(queryset=catelist,label="类别",initial=catelist.first().name)

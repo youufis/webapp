@@ -247,7 +247,22 @@ def global_params(request):
         tlist.append(tl)
     
     newscatelist=list(zip_longest(flist,slist,tlist))
-    #print(newscatelist)
+    ##############是否有三级分类##############################
+    st=[]
+    st1=[]
+    st2=[]
+    for s in slist:              
+        for i in s:
+            st1.append(i)
+    
+    for s in tlist:
+        for i in s:
+            for j in i:
+                st2.append(j.pcate)
+            
+    
+    st=list(set(st1)^set(st2))
+    #print(st)
     ###########################################
     
     
@@ -269,12 +284,30 @@ def global_params(request):
             tp=productcate.objects.filter(cate=r.id)
             tl.append(tp)
         tlist2.append(tl)
+#################是否有三级分类#################################################
+    pst=[]
+    pst1=[]
+    pst2=[]
+    for s in slist2:              
+        for i in s:
+            pst1.append(i)
+    
+    for s in tlist2:
+        for i in s:
+            for j in i:
+                pst2.append(j.cate)
+            
+    
+    pst=list(set(pst1)^set(pst2))
     #print(slist)    
     pslist=list(zip_longest(flist2,slist2,tlist2))
 
+    
     return {
         "newscatelist":newscatelist,
+        "st":st,
         "pslist":pslist,
+        "pst":pst,
         }
 
 #首页

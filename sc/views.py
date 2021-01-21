@@ -25,7 +25,7 @@ from bs4 import BeautifulSoup
 from lxml import html
 import xml
 import requests
-
+from itertools import zip_longest
 
 #########################获取IP############################################
 def get_host_ip():
@@ -228,20 +228,50 @@ def timgtoaudit(bflag=False):
 #内容分类和产品分类全局变量
 def global_params(request):
     #catelist=cate.objects.all()     
-    catelist=cate.objects.filter(pcate__isnull=True)    
-    nslist=[]
-    for p in catelist:
-        nslist.append(cate.objects.filter(pcate__isnull=False,pcate=p.id))
+    catelist=cate.objects.filter(pcate__isnull=True)   # 一级分类
+    flist=[]#一级分类
+    for f in catelist:
+        flist.append(f)
 
-    #print(catelist,newslist)
-    newscatelist=zip(catelist,nslist)
+    slist=[]#二级分类
+    tlist=[]#三分分类
+    for s in flist:
+        sp=cate.objects.filter(pcate__isnull=False,pcate=s.id)
+        slist.append(sp) #二级分类     
 
+    for t in slist: 
+        tl=[]   
+        for r in t:             
+            tp=cate.objects.filter(pcate=r.id)#三级分类
+            tl.append(tp)
+        tlist.append(tl)
+    
+    newscatelist=list(zip_longest(flist,slist,tlist))
+    #print(newscatelist)
+    ###########################################
+    
+    
+    ####################产品分类##########################
     plist=productcate.objects.filter(cate__isnull=True)
-    slist=[]
-    for p in plist:
-        slist.append(productcate.objects.filter(cate__isnull=False,cate=p.id))
+    flist2=[]
+    for f in plist:
+        flist2.append(f)
+
+    slist2=[]#二级分类
+    tlist2=[]#三级分类    
+    for s in flist2:
+        sp=productcate.objects.filter(cate__isnull=False,cate=s.id)
+        slist2.append(sp)
+
+    for t in slist2:
+        tl=[]
+        for r in t:
+            tp=productcate.objects.filter(cate=r.id)
+            tl.append(tp)
+        tlist2.append(tl)
     #print(slist)    
-    pslist=zip(plist,slist)
+    pslist=list(zip_longest(flist2,slist2,tlist2))
+
     return {
         "newscatelist":newscatelist,
         "pslist":pslist,

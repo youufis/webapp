@@ -15,7 +15,7 @@ admin.site.site_header = "控制台"
 #分类
 class cateadmin(admin.ModelAdmin):
     list_display=['id','name',"pcate"]
-    list_per_page = 5
+    list_per_page = 20
     #inlines = [newsInline, ]
 
 #内容
@@ -89,6 +89,7 @@ class userfileadmin(admin.ModelAdmin):
 #产品类别
 class productcateadmin(admin.ModelAdmin):
     list_display=['id','name','cate']
+    list_per_page = 20
 
 
 

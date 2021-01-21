@@ -67,10 +67,11 @@
 
 	<div class="row clearfix" >
 	{% for cateitem,catenews in catenewslist %}
+	{% if catenews %}
 	<div class="col-md-4 column">
 		<a href="{% url 'newscate' cateitem.id%}">{{cateitem.name}}</a>
 		<ul>
-			{% for newsitem in catenews %}
+			{% for newsitem in catenews %}			
 			<li>
 				{% if newsitem.title|length > 14 %}
 				<a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:14}}…({{newsitem.create_time|date:"y/m/j"}})</a>
@@ -81,7 +82,9 @@
 			{% endfor %}
 		</ul>
 	</div>
+	{% endif %}
 	{% endfor %}
+	
 
 	<div class="col-md-4 column">
 		<a href="{%url 'userproduct' 1 %}">最新产品</a>

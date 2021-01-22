@@ -30,7 +30,7 @@ class productform(forms.Form):
                             widget=widgets.TextInput(attrs={'size': '50%'}))
     cate=forms.ModelChoiceField(queryset=catelist,label="类别",initial=catelist.first().name)
     img=forms.ImageField(label="产品图片",allow_empty_file=True,required=False)
-    price=forms.IntegerField(label="产品价格")
+    price=forms.IntegerField(label="产品价格",initial=100)
     repository=forms.ChoiceField(label="库存",choices=(("无货", "无货"), ("有货", "有货")),initial="有货" )
     content = forms.CharField(label="产品详情", widget=UEditorWidget(
         {"width":"98%", "height": 400,

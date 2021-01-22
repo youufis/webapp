@@ -35,7 +35,6 @@
 						<a href="{% url 'index' %}">首页</a>
 					</li>
 					{% for f,s,t in newscatelist %}
-
 					<li class="dropdown">
 						<a href="{% url 'newscate' f.id %}" data-toggle="dropdown"
 							class="dropdown-toggle">{{f.name}}<strong class="caret"></strong></a>
@@ -59,20 +58,18 @@
 							{% else %}
 							<li><a href="{% url 'newscate' b.id %}">{{b.name}}</a></li>
 							{% endif %}
-							
 							{% endfor %}
 						</ul>
 					</li>
 					{% endfor %}
 
 					{% for f,s,t in pslist %}
-
 					<li class="dropdown">
 						<a href="{% url 'productcate' f.id %}" data-toggle="dropdown"
 							class="dropdown-toggle">{{f.name}}<strong class="caret"></strong></a>
 						<ul class="dropdown-menu">
 							{% for b in s %}
-							{% if  b not in pst %}
+							{% if b not in pst %}
 							<li class="dropdown-submenu">
 								<a tabindex="-1" href="{% url 'productcate' b.id %}">{{b.name}}</a>
 								<ul class="dropdown-menu">
@@ -95,9 +92,7 @@
 					</li>
 					{% endfor %}
 
-
 					{% if user.is_authenticated %}
-
 					<li class="dropdown">
 						<a href="#" data-toggle="dropdown" class="dropdown-toggle">功能<strong class="caret"></strong></a>
 						<ul class="dropdown-menu">
@@ -107,28 +102,23 @@
 						   <li>
 							<a  href=" {% url 'usernews' %}" ">内容管理</a>
 							</li>
-							<li role=" presentation" class="divider">
-							</li>
+							<li role=" presentation" class="divider"></li>
 							<li>
 								<a href="{% url 'userfiles' %}" ">文件管理</a>
 								</li>
 							<li>
 									<a  href=" {% url 'getfile' %}" ">上传文件</a>
 								</li>
-								<li role=" presentation" class="divider">
-							</li>
+								<li role=" presentation" class="divider"></li>
 							<li>
 								<a href="{% url 'addproduct' %}" ">产品发布</a>
 								</li>
 								<li>
 									<a  href=" {% url 'userproduct' 0 %}" ">产品管理</a>
 									</li>
-									<li role=" presentation" class="divider">
-							</li>
+									<li role=" presentation" class="divider"></li>
 							{% if user.is_superuser %}
-							<li>
-								<a href="{% url 'uploadxls' %}">用户导入</a>
-							</li>
+							<li><a href="{% url 'uploadxls' %}">用户导入</a></li>
 							{% endif %}
 						</ul>
 					</li>
@@ -163,7 +153,6 @@
 		</div>
 	</div>
 
-
 	{{msg}}
 
 	{% block mainbody %}
@@ -173,7 +162,8 @@
 		<h4 align="center"> Copyright © 2020 (QQ:10082823) All rights reserved. {% if hits %} 总访问量：{{hits}}{% endif %}
 		</h4>
 		<h6 align="center">本网站提供的所有信息，仅供测试学习之用，如有侵犯您的知识产权，
-			请与<a href="mailto:youufis@sina.com">作者</a>联系，我会及时修改或删除。</h5>
+			请与<a href="mailto:youufis@sina.com">作者</a>联系，我会及时修改或删除。</h6>
+			<h6 align="center">未审核：{{newsmsg}}+{{pmsg}}  本周留言：{{bmsg}} </h6>
 	</div>
 </body>
 

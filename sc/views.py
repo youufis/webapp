@@ -26,6 +26,7 @@ from lxml import html
 import xml
 import requests
 from itertools import zip_longest
+import datetime
 
 #########################获取IP############################################
 def get_host_ip():
@@ -174,7 +175,7 @@ def txtaudit(cont):
     SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
     client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
     result = client.textCensorUserDefined(cont)
-    print(result)
+    #print(result)
     return result['conclusion']
 
 #调用百度AI图像识别
@@ -227,25 +228,22 @@ def timgtoaudit(bflag=False):
 ######首页#######分类全局变量####支持三级下拉菜单############################################
 #内容分类和产品分类全局变量
 def global_params(request):
-    #catelist=cate.objects.all()     
+    #catelist=cate.objects.all()         
     catelist=cate.objects.filter(pcate__isnull=True)   # 一级分类
     flist=[]#一级分类
     for f in catelist:
         flist.append(f)
-
     slist=[]#二级分类
     tlist=[]#三分分类
     for s in flist:
         sp=cate.objects.filter(pcate__isnull=False,pcate=s.id)
         slist.append(sp) #二级分类     
-
     for t in slist: 
         tl=[]   
         for r in t:             
             tp=cate.objects.filter(pcate=r.id)#三级分类
             tl.append(tp)
-        tlist.append(tl)
-    
+        tlist.append(tl)    
     newscatelist=list(zip_longest(flist,slist,tlist))
     ##############是否有三级分类##############################
     st=[]
@@ -272,13 +270,11 @@ def global_params(request):
     flist2=[]
     for f in plist:
         flist2.append(f)
-
     slist2=[]#二级分类
     tlist2=[]#三级分类    
     for s in flist2:
         sp=productcate.objects.filter(cate__isnull=False,cate=s.id)
         slist2.append(sp)
-
     for t in slist2:
         tl=[]
         for r in t:
@@ -291,18 +287,15 @@ def global_params(request):
     pst2=[]
     for s in slist2:              
         for i in s:
-            pst1.append(i)
-    
+            pst1.append(i)    
     for s in tlist2:
         for i in s:
             for j in i:
                 pst2.append(j.cate)
-            
-    
+                
     pst=list(set(pst1)^set(pst2))
     #print(slist)    
     pslist=list(zip_longest(flist2,slist2,tlist2))
-
     
     return {
         "newscatelist":newscatelist,
@@ -313,6 +306,7 @@ def global_params(request):
 
 #首页
 def index(request):
+
     bflag=False #关闭开启线程审核封面图像
     timgtoaudit(bflag) #开启/关闭线程进行封面图像审核
 
@@ -378,6 +372,15 @@ def index(request):
 
     producttop6=product.objects.filter(status="已审核").order_by("-create_time")[:6]
 
+    #未审核和最新留言信息
+    newsmsg=news.objects.filter(status="未审核").count()
+    pmsg=product.objects.filter(status="未审核").count()
+
+    now_time=datetime.datetime.now()
+    day_num=now_time.isoweekday()
+    monday=(now_time-datetime.timedelta(days=day_num))
+    bmsg=msgbook.objects.filter(create_time__range=(monday,now_time)).count()#本周
+    #bmsg=msgbook.objects.filter(create_time__month=now_time.month).count()#本月  
     return render(request,'index.html', locals())
 
 #分页

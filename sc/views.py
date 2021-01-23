@@ -358,7 +358,8 @@ def index(request):
             #print(f)
 
     #最新封面
-    fnamenewsobj=news.objects.filter(Q(img__isnull=False)&Q(status='已审核')).order_by("-id")[:3]
+    fnamenewsobj10=news.objects.filter(Q(img__isnull=False)&Q(status='已审核')).order_by("-id")[:10]
+    fnamenewsobj=random.sample(list(fnamenewsobj10),3)
 
     #取出所有类别
     catelist=cate.objects.filter(pcate__isnull=False)

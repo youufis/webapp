@@ -407,7 +407,7 @@ def newscate(request,cateid):
 
 #提取内容关键词,返回top5
 def findkeyword(cont):
-    soup = BeautifulSoup(cont)
+    soup = BeautifulSoup(cont,"lxml")
     wordlist=jieba.lcut(soup.get_text())
 
     counters={}

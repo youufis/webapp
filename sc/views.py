@@ -27,6 +27,7 @@ import xml
 import requests
 from itertools import zip_longest
 import datetime
+import jieba
 
 #########################获取IP############################################
 def get_host_ip():
@@ -357,7 +358,7 @@ def index(request):
         #for f in os.listdir(fpath):
             #print(f)
 
-    #最新封面
+    #最新封面top10随机取3
     fnamenewsobj10=news.objects.filter(Q(img__isnull=False)&Q(status='已审核')).order_by("-id")[:10]
     fnamenewsobj=random.sample(list(fnamenewsobj10),3)
 
@@ -404,6 +405,29 @@ def newscate(request,cateid):
     newslist=getPage(request,news.objects.filter(cate=cateobj).order_by('-create_time'),6)
     return render(request, "cate.html", locals())
 
+#提取内容关键词,返回top5
+def findkeyword(cont):
+    soup = BeautifulSoup(cont)
+    wordlist=jieba.lcut(soup.get_text())
+
+    counters={}
+    for word in wordlist:
+        if len(word.encode('utf-8'))<6:
+            continue
+        else:
+            counters[word]=counters.get(word,0)+1
+    items=list(counters.items())
+    items.sort(key=lambda x:x[1],reverse=True)
+
+    #print(items[:5])
+    keywords=[]
+    items=items[:5]
+    for k in items:
+        keywords.append(k[0])
+    #print(keywords)
+    kd=" ".join(keywords)
+    return kd
+
  #内容详细页
 def newsdetail(request,newsid):    
     newsobj=news.objects.get(id=newsid)    
@@ -417,6 +441,19 @@ def newsdetail(request,newsid):
     #news_hits=newshits.objects.filter(news=newsobj).count
     news_hitsobj=newshits.objects.filter(news=newsobj).first()
     news_hits=news_hitsobj.num
+
+    #提取内容关键词，如果内容关键词为空，刚保存
+    cont=newsobj.content
+    keyword=newsobj.keyword
+    if not keyword:
+        kd=findkeyword(cont)
+        ret=news.objects.filter(id=newsid).update(keyword=kd)
+        #print(keyword,kd)
+        
+        
+
+
+
     return render(request, "newsdetail.html", locals())
 
 #############搜索###############################################################        

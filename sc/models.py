@@ -35,6 +35,7 @@ class news(models.Model):
     create_time = models.DateTimeField(verbose_name="时间", auto_now_add=True)   
     status = models.CharField(verbose_name="审核", choices=(
         ("未审核", "未审核"), ("已审核", "已审核")), max_length=10, default="未审核")
+    keyword=models.CharField(verbose_name="关键词", max_length=100, null=True,blank=True)
 
     def __str__(self):
         return self.title

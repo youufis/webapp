@@ -22,7 +22,7 @@ class cateadmin(admin.ModelAdmin):
 #内容
 class newsadmin(admin.ModelAdmin):
     exclude = ('user',)#排除
-    list_display=['id','title','img','cate','user','create_time','status'] #可显示的字段
+    list_display=['id','title','img','cate','user','create_time','status',"keyword"] #可显示的字段
     
     list_filter=('status','create_time') #过滤选项
     ordering=('-id','title','create_time','cate','user') # 排序字段

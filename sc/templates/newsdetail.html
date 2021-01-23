@@ -15,8 +15,9 @@
 					{{newsobj.content|safe}}
 				</div>
 				<div class="panel-footer">
-					{{newsobj.create_time}}  发布人:{{newsobj.user}}
+					{{newsobj.create_time}}  发布人:{{newsobj.user}}{% if keyword %}  关键词：{{keyword}}{% endif %}
 				</div>
+			
 			</div>
 		</div>
 	</div>

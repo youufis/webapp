@@ -297,11 +297,23 @@ def global_params(request):
     #print(slist)    
     pslist=list(zip_longest(flist2,slist2,tlist2))
     
+        #未审核和最新留言信息
+    newsmsg=news.objects.filter(status="未审核").count()
+    pmsg=product.objects.filter(status="未审核").count()
+    now_time=datetime.datetime.now()
+    day_num=now_time.isoweekday()
+    monday=(now_time-datetime.timedelta(days=day_num))
+    bmsg=msgbook.objects.filter(create_time__range=(monday,now_time)).count()#本周
+    #bmsg=msgbook.objects.filter(create_time__month=now_time.month).count()#本月  
+
     return {
         "newscatelist":newscatelist,
         "st":st,
         "pslist":pslist,
         "pst":pst,
+        "newsmsg":newsmsg,
+        "pmsg":pmsg,
+        "bmsg":bmsg,
         }
 
 #首页
@@ -372,15 +384,7 @@ def index(request):
 
     producttop6=product.objects.filter(status="已审核").order_by("-create_time")[:6]
 
-    #未审核和最新留言信息
-    newsmsg=news.objects.filter(status="未审核").count()
-    pmsg=product.objects.filter(status="未审核").count()
 
-    now_time=datetime.datetime.now()
-    day_num=now_time.isoweekday()
-    monday=(now_time-datetime.timedelta(days=day_num))
-    bmsg=msgbook.objects.filter(create_time__range=(monday,now_time)).count()#本周
-    #bmsg=msgbook.objects.filter(create_time__month=now_time.month).count()#本月  
     return render(request,'index.html', locals())
 
 #分页

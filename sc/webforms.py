@@ -7,9 +7,15 @@ from DjangoUeditor.forms import UEditorField, UEditorModelForm
 
 #普通用户发布和修改内容表单
 class newsform(forms.Form):
-    catelist = cate.objects.filter(pcate__isnull=False)
+    catelist = cate.objects.filter(pcate__isnull=False)#二级和三级分类
+    fcatelist=cate.objects.filter(pcate__isnull=True)#一级分类
+    scatelist=cate.objects.filter(pcate__in=fcatelist)#二级分类
+    tcatelist=cate.objects.filter(pcate__in=scatelist)#三级分类
+
+    stcatelist=scatelist|tcatelist#二级和三级分类合并
+   
     cate = forms.ModelChoiceField(
-        queryset=catelist, label="类别", initial=catelist.first().name)
+        queryset=stcatelist, label="类别", initial=catelist.first().name)
 
     title = forms.CharField(max_length=100, label="标题",
                             widget=widgets.TextInput(attrs={'size': '50%'}))

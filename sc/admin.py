@@ -18,6 +18,7 @@ class cateadmin(admin.ModelAdmin):
     list_per_page = 20
     #inlines = [newsInline, ]
 
+
 #内容
 class newsadmin(admin.ModelAdmin):
     exclude = ('user',)#排除
@@ -46,9 +47,15 @@ class newsadmin(admin.ModelAdmin):
    
     #对外键进行设置初值
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):                                                                                                             
-        if db_field.name == 'cate':                                                
+        if db_field.name == 'cate':   
+            catelist = cate.objects.filter(pcate__isnull=False)
+            fcatelist=cate.objects.filter(pcate__isnull=True)
+            scatelist=cate.objects.filter(pcate__in=fcatelist)
+            tcatelist=cate.objects.filter(pcate__in=scatelist)
+            stcatelist=scatelist|tcatelist
+            kwargs['queryset']= stcatelist                                              
             kwargs['initial'] = cate.objects.filter(pcate__isnull=False).first()   
-            kwargs['queryset']= cate.objects.filter(pcate__isnull=False)                               
+                              
         return super(newsadmin, self).formfield_for_foreignkey(                     
             db_field, request, **kwargs )
     

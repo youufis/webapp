@@ -359,9 +359,14 @@ def index(request):
             #print(f)
 
     #最新封面top10随机取3
-    fnamenewsobj10=news.objects.filter(Q(img__isnull=False)&Q(status='已审核')).order_by("-id")[:10]
-    fnamenewsobj=random.sample(list(fnamenewsobj10),3)
-
+    fnews=[]
+    fnamenewsobj20=news.objects.filter(Q(img__isnull=False) & Q(status='已审核')).order_by("-id")[:20]
+    #img_isnull=False 并不能判断图像字段为空，需要bool(boolobj.img)判断一次
+    for r in fnamenewsobj20:
+        if bool(r.img):
+            fnews.append(r)
+    fnamenewsobj=random.sample(fnews,3)
+    
     #取出所有类别
     catelist=cate.objects.filter(pcate__isnull=False)
     newslist=[]
@@ -442,18 +447,25 @@ def newsdetail(request,newsid):
     news_hitsobj=newshits.objects.filter(news=newsobj).first()
     news_hits=news_hitsobj.num
 
-    #提取内容关键词，如果内容关键词为空，刚保存
+    #提取内容关键词，如果内容关键词为空，保存
     cont=newsobj.content
     keyword=newsobj.keyword
+    robjlist=[]
     if not keyword:
         kd=findkeyword(cont)
         ret=news.objects.filter(id=newsid).update(keyword=kd)
         #print(keyword,kd)
-        
-        
-
-
-
+    else:
+        #根据关键字查找相关联的内容
+        kd=keyword.split(" ")
+        for k in kd:
+            robj=news.objects.filter(keyword__contains=k).order_by("-id")
+            for r in robj:
+                robjlist.append(r)
+    robjlist=list(set(robjlist))
+    robjlist.remove(newsobj)
+    robjlist=robjlist[:10]
+    #print(robjlist)
     return render(request, "newsdetail.html", locals())
 
 #############搜索###############################################################        

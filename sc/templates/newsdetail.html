@@ -17,7 +17,21 @@
 				<div class="panel-footer">
 					{{newsobj.create_time}}  发布人:{{newsobj.user}}{% if keyword %}  关键词：{{keyword}}{% endif %}
 				</div>
-			
+				<div class="list-group">									   
+				   <div class="list-group-item">
+
+					   {% for newsitem in robjlist%}
+					   <li>
+						{% if newsitem.title|length > 14 %}
+						<a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title|truncatechars:14}}…({{newsitem.create_time|date:"y/m/j"}})</a>
+						 {% else %}
+						 <a href="{% url 'newsdetail' newsitem.id %}">{{newsitem.title}}({{newsitem.create_time|date:"y/m/j"}})</a>
+						 {% endif %}
+					   </li>
+					   {% endfor %}
+				   </div>
+				   
+			   </div>
 			</div>
 		</div>
 	</div>

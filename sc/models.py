@@ -146,6 +146,8 @@ class bconfig(models.Model):
     isspider=models.BooleanField(verbose_name="是否抓取外部新闻",default=True)
     ismsg=models.BooleanField(verbose_name="是否开启留言",default=True)
     ismsgaudit=models.BooleanField(verbose_name="是否机器审核留言",default=True)
+    isimgai=models.BooleanField(verbose_name="是否开启图像识别",default=True)
+
 
     def __str__(self):
         return self.name

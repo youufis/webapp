@@ -129,7 +129,11 @@
 {% for img in fname %}
 <div class="row clearfix">
 	<div class="col-md-4 column">
+		{% if isimgai %}
 		<a href="{% url 'imgdetect' img %}"><img src="/media/images/{{img}}" class="img-thumbnail" /></a>
+		{% else %}
+		<img src="/media/images/{{img}}" class="img-thumbnail" />
+		{% endif %}
 	</div>
 	{% endfor %}
 </div>

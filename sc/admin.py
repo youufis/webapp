@@ -13,7 +13,7 @@ admin.site.site_header = "控制台"
     #fields=('title', 'status', )
 #网站配置
 class bconfigadmin(admin.ModelAdmin):
-    list_display=['id','name','isimgaudit','isspider','ismsg','ismsgaudit']
+    list_display=['id','name','isimgaudit','isspider','ismsg','ismsgaudit','isimgai']
 
 #分类
 class cateadmin(admin.ModelAdmin):
@@ -166,7 +166,7 @@ class msgbookadmin(admin.ModelAdmin):
 
     #显示名称
     query_status.short_description="审核所选的 内容"
-    
+
 admin.site.register(cate,cateadmin)
 admin.site.register(news,newsadmin)
 admin.site.register(ipinfo,ipinfoadmin)

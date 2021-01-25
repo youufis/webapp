@@ -397,7 +397,7 @@ def index(request):
     #默认url = "https://news.sina.com.cn/china/"
     #https://www.chinanews.com/photo/more/1.html
     #print(ret)
-
+    isimgai=bcon.isimgai
     producttop6=product.objects.filter(status="已审核").order_by("-create_time")[:6]
 
 

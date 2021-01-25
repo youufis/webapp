@@ -129,6 +129,8 @@ class msgbook(models.Model):
     product=models.ForeignKey(product,verbose_name="产品",on_delete=models.CASCADE)
     msg=models.CharField(verbose_name="留言",max_length=150)
     ipaddr=models.GenericIPAddressField(verbose_name="IP地址")
+    status= models.CharField(verbose_name="审核", choices=(
+        ("未审核", "未审核"), ("已审核", "已审核")), max_length=10, default="未审核")
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
 
     def __str__(self):
@@ -137,3 +139,16 @@ class msgbook(models.Model):
         verbose_name="用户留言"
         verbose_name_plural=verbose_name
 
+#网站配置开关
+class bconfig(models.Model):
+    name=models.CharField(max_length=20,verbose_name="网站配置",default="config")
+    isimgaudit=models.BooleanField(verbose_name="是否审核图像",default=False)
+    isspider=models.BooleanField(verbose_name="是否抓取外部新闻",default=True)
+    ismsg=models.BooleanField(verbose_name="是否开启留言",default=True)
+    ismsgaudit=models.BooleanField(verbose_name="是否机器审核留言",default=True)
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name="网站配置"
+        verbose_name_plural=verbose_name

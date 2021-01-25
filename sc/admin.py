@@ -11,6 +11,9 @@ admin.site.site_header = "控制台"
 #class newsInline(admin.TabularInline):
     #model=news
     #fields=('title', 'status', )
+#网站配置
+class bconfigadmin(admin.ModelAdmin):
+    list_display=['id','name','isimgaudit','isspider','ismsg','ismsgaudit']
 
 #分类
 class cateadmin(admin.ModelAdmin):
@@ -21,7 +24,7 @@ class cateadmin(admin.ModelAdmin):
 
 #内容
 class newsadmin(admin.ModelAdmin):
-    exclude = ('user',)#排除
+    exclude = ('user','keyword',)#排除
     list_display=['id','title','img','cate','user','create_time','status',"keyword"] #可显示的字段
     
     list_filter=('status','create_time') #过滤选项
@@ -114,6 +117,9 @@ class productadmin(admin.ModelAdmin):
     def query_status(self,request,queryset):       
         queryset.update(status="已审核")     
 
+    #显示名称
+    query_status.short_description="审核所选的 内容"
+
         #自动保存登录用户
     def save_model(self, request, obj, form, change):        
         obj.user = request.user
@@ -150,9 +156,17 @@ class productadmin(admin.ModelAdmin):
 
 #用户留言
 class msgbookadmin(admin.ModelAdmin):
-    list_display=['id','user','msg','ipaddr','create_time']
+    list_display=['id','user','msg','ipaddr','status','create_time']
     list_per_page=20
 
+     #自定义actions 审核发布
+    actions=['query_status']
+    def query_status(self,request,queryset):       
+        queryset.update(status="已审核")     
+
+    #显示名称
+    query_status.short_description="审核所选的 内容"
+    
 admin.site.register(cate,cateadmin)
 admin.site.register(news,newsadmin)
 admin.site.register(ipinfo,ipinfoadmin)
@@ -161,4 +175,5 @@ admin.site.register(userfile,userfileadmin)
 admin.site.register(product,productadmin)
 admin.site.register(productcate,productcateadmin)
 admin.site.register(msgbook,msgbookadmin)
+admin.site.register(bconfig,bconfigadmin)
 

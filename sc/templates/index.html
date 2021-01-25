@@ -101,18 +101,30 @@
 		</ul>
 	</div>
 
-	<div class="col-md-4 column">
-		外部新闻-新浪新闻
+
+</div>
+{% if res1 and res2 %}
+<h3>外部图片新闻</h3>
+<div class="row clearfix">
+	<div class="col-md-3 column">
 		<ul>
-			{% for urlval,strval in ret %}
+		{% for urlval,strval in res1 %}
 			<li>
 				<a href="{{urlval}}">{{strval}})</a>
 			</li>
 		{% endfor %}
-		</ul>
+	</ul>
 	</div>
-
+	{% for i,j in res2 %}
+	<div class="col-md-3 column" align="center">
+		{{i|cut:"["|cut:"]"|safe}}
+			<br>
+		{{j|cut:"["|cut:"]"|safe}}
+	</div>
+	{% endfor %}
 </div>
+{% endif %}
+
 <h3>封面图片</h3>
 {% for img in fname %}
 <div class="row clearfix">
@@ -121,4 +133,5 @@
 	</div>
 	{% endfor %}
 </div>
+
 {% endblock %}

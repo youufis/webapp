@@ -320,9 +320,12 @@ def global_params(request):
 #首页
 def index(request):
 
-    bflag=False #关闭开启线程审核封面图像
+    #bflag=False #关闭开启线程审核封面图像
+    bcon=bconfig.objects.filter(name='config').first()
+    bflag=bcon.isimgaudit
+    #print(bflag)
+    
     timgtoaudit(bflag) #开启/关闭线程进行封面图像审核
-
   
     hostip=get_host_ip()
     clientip=get_client_ip(request)
@@ -385,8 +388,14 @@ def index(request):
         idhotlist.append(idhot["news"])
     #print(idhotlist)
     newshot6=news.objects.filter(id__in=idhotlist).order_by('-id')
-
-    ret=friendlylink() #默认url = "https://news.sina.com.cn/china/"
+    
+    bspider=bcon.isspider
+    #print(bspider)
+    if bspider:
+        res1,res2=friendlylink()
+    
+    #默认url = "https://news.sina.com.cn/china/"
+    #https://www.chinanews.com/photo/more/1.html
     #print(ret)
 
     producttop6=product.objects.filter(status="已审核").order_by("-create_time")[:6]
@@ -463,7 +472,8 @@ def newsdetail(request,newsid):
             for r in robj:
                 robjlist.append(r)
     robjlist=list(set(robjlist))
-    robjlist.remove(newsobj)
+    if newsobj in robjlist:
+        robjlist.remove(newsobj)
     robjlist=robjlist[:10]
     #print(robjlist)
     return render(request, "newsdetail.html", locals())
@@ -592,22 +602,47 @@ def savenews(request):
 
 ########抓取外部新闻链接############################################################################
 # 抓取外部新闻链接    
-def friendlylink(url="https://news.sina.com.cn/china/"):
-    #url = "https://news.sina.com.cn/china/"
-    f = requests.get(url)                 #Get该网页从而获取该html内容
-    soup = BeautifulSoup(f.content, "lxml")  #用lxml解析器解析该网页的内容, 好像f.text也是返回的html
-    content = soup.find_all('ul',class_="news-2" ) 
-    #第二次解析内容
-    hreflist=content[0].find_all("a")
+def friendlylink():
+    url1 = "https://news.sina.com.cn/china/"
+    url2="https://www.chinanews.com/photo"
+
+    f1 = requests.get(url1)                 #Get该网页从而获取该html内容
+    f1.encoding="utf-8"
+    soup1 = BeautifulSoup(f1.text, "lxml")  #用lxml解析器解析该网页的内容, 好像f.text也是返回的html
+    content1 = soup1.find_all('ul',class_="news-2" ) 
+     #第二次解析内容
+    hreflist=content1[0].find_all("a")
     #print(hreflist)
     list1=[]
     list2=[]
-    res=[]
+    res1=[]
     for k in hreflist:
         list1.append(k.get('href'))
         list2.append(k.string)
-    res=zip(list1[:6],list2[:6])
-    return res
+    res1=zip(list1[:6],list2[:6])
+
+    f2 = requests.get(url2)   
+    f2.encoding="utf-8" 
+    soup2 = BeautifulSoup(f2.text, "lxml")            #Get该网页从而获取该html内容
+    content2 = soup2.find_all('div',class_="img-kuang" ) 
+    #print(content)
+    r1=[]
+    r2=[]
+    for k in content2:
+        t=k.find_all('div',class_="img-210140")
+        t2=k.find_all('div',class_="text-21024")
+        r1.append(t)
+        r2.append(t2)
+        '''
+        for i in t:
+            sa=i.find("a")
+            si=i.find("img")
+            print(sa.get("href"),si)
+        '''
+   
+    res2=list(zip(r1,r2))[:3]
+    
+    return res1,res2
 
 ###用户上传文件#######用户文件页#########删除文件#############################################
 #用户上传文件
@@ -727,7 +762,7 @@ def productdetail(request,productid):
     product_hitsobj=producthits.objects.filter(product=productobj).first()
     product_hits=product_hitsobj.num
 
-    newslist=getPage(request,msgbook.objects.filter(product=productobj).order_by("-create_time"),10)
+    newslist=getPage(request,msgbook.objects.filter(product=productobj,status="已审核").order_by("-create_time"),10)
     return render(request, "productdetail.html", locals())
 
 #普通用户发布和修改产品
@@ -782,6 +817,13 @@ def pcate(request,cateid):
 
 ########产品留言#########################################################################################
 def signbook(request):  
+    bcon=bconfig.objects.filter(name="config").first()
+    ismsg=bcon.ismsg
+    ismsgaudit=bcon.ismsgaudit
+    ism=True
+    #print(ismsg)
+    if not ismsg:#留言功能未开启
+        return HttpResponse("")
     ipaddr=get_client_ip(request)
     id=request.session['id']
     productobj=product.objects.filter(id=id).first()
@@ -792,8 +834,17 @@ def signbook(request):
         if len(msg)>150:
             messages.success(request, '字数太多')
             return render(request,"signbook.html",locals())
-        ret=txtaudit(msg)
+        if ismsgaudit:#留言审核开启
+            ret=txtaudit(msg)
+            ism=False
+        else:
+            ret="合规"
+            ism=True
         if ret in ["合规"]:
+            if ism:
+                sta="未审核"
+            else:
+                sta="已审核"
             if request.session.get('username'):
                 username= request.session["username"]
                 user=User.objects.get(username=request.user.username)
@@ -802,6 +853,7 @@ def signbook(request):
                     product=productobj,
                     msg=msg,
                     ipaddr=ipaddr,
+                    status=sta
                 )
             
             else:
@@ -809,8 +861,12 @@ def signbook(request):
                     product=productobj,
                     msg=msg,
                     ipaddr=ipaddr,
+                    status=sta
                 )
-            messages.success(request, '审核通过')
+            if ismsgaudit:
+                messages.success(request, '审核通过')
+            else:
+                messages.success(request, '等待审核')
             return render(request,"signbook.html",locals())
         else:
             messages.success(request, '审核不通过')

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import *
 from .views import *
+
 # Register your models here.
 
 #修改网页title和站点header。
@@ -14,6 +15,11 @@ admin.site.site_header = "控制台"
 #网站配置
 class bconfigadmin(admin.ModelAdmin):
     list_display=['id','name','isimgaudit','isspider','ismsg','ismsgaudit','isimgai']
+
+#用户扩展资料
+class  userextendadmin(admin.ModelAdmin):
+    list_display=['id','user','storage']
+    list_per_page=20
 
 #分类
 class cateadmin(admin.ModelAdmin):
@@ -176,4 +182,5 @@ admin.site.register(product,productadmin)
 admin.site.register(productcate,productcateadmin)
 admin.site.register(msgbook,msgbookadmin)
 admin.site.register(bconfig,bconfigadmin)
+admin.site.register(userextend,userextendadmin)
 

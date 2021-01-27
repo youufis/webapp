@@ -648,6 +648,17 @@ def friendlylink():
 #用户上传文件
 @login_required
 def getfile(request):
+    if request.session.get('username'):
+        username=request.session.get('username')
+        user=User.objects.get(username=username)
+        ret=userextend.objects.get_or_create(
+            user=user,
+        )
+        userexobj=userextend.objects.get(user=user)
+        remainstorage=userexobj.storage
+        if remainstorage <=0:
+            msg="存储空间已满，删除文件以释放空间！"
+            return render(request, 'base.html', locals())
     if request.method == 'POST':
         form = fileform(request.POST, request.FILES )  # 有文件上传要传两个字段
         f=request.FILES['file']
@@ -669,7 +680,8 @@ def getfile(request):
                         size=f.size
                     )
                     #print(username,name)
-                    print(data["file"].size)
+                    size=data["file"].size
+                    ret=userextend.objects.filter(user=user).update(storage=F('storage')-size)
                     messages.success(request,data["file"].name+'上传成功')
             return render(request,'webforms.html', {'form': form}) #
         else:
@@ -698,11 +710,16 @@ def userfiles(request):
 def delfile(request,fileid):
     if request.session.get('username'):
         username= request.session["username"]
+        user=User.objects.get(username=username)
         fobj=userfile.objects.filter(id=fileid).first()
+        #删除文件，释放空间
+        size=fobj.size
+        ret=userextend.objects.filter(user=user).update(storage=F('storage')+size)
         f=os.path.join(settings.MEDIA_ROOT,fobj.username,fobj.name)
         if os.path.exists(f) :
             os.remove(f)
         ret=userfile.objects.filter(id=fileid).delete()
+        
     return redirect('/userfiles/')
 
 ################用户产品页######删除产品#######编辑产品######产品详细页######用户发布和修改产品######产品分类页##########

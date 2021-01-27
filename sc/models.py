@@ -154,3 +154,14 @@ class bconfig(models.Model):
     class Meta:
         verbose_name="网站配置"
         verbose_name_plural=verbose_name
+
+#扩展用户字段
+class userextend(models.Model):
+    user=models.ForeignKey(User,verbose_name="用户",on_delete=models.CASCADE)
+    storage=models.IntegerField(verbose_name="存储空间",default="104857600")#默认空间大小：100MB=100*1024*1024
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add="True")
+
+ 
+    class Meta:
+        verbose_name="用户资料"
+        verbose_name_plural=verbose_name

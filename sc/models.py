@@ -147,7 +147,9 @@ class bconfig(models.Model):
     ismsg=models.BooleanField(verbose_name="是否开启留言",default=True)
     ismsgaudit=models.BooleanField(verbose_name="是否机器审核留言",default=True)
     isimgai=models.BooleanField(verbose_name="是否开启图像识别",default=True)
-
+    islogin=models.BooleanField(verbose_name="是否开启登录",default=True)
+    isregister=models.BooleanField(verbose_name="是否开启注册",default=True)
+    totalsize=models.IntegerField(verbose_name="用户空间",default="104857600")#默认空间大小：100MB=100*1024*1024
 
     def __str__(self):
         return self.name
@@ -158,10 +160,13 @@ class bconfig(models.Model):
 #扩展用户字段
 class userextend(models.Model):
     user=models.ForeignKey(User,verbose_name="用户",on_delete=models.CASCADE)
-    storage=models.IntegerField(verbose_name="存储空间",default="104857600")#默认空间大小：100MB=100*1024*1024
+    storage=models.IntegerField(verbose_name="存储空间",default="0")#默认空间大小：100MB=100*1024*1024bconfig.objects.get(name="config").totalsize
+    ispublishnews=models.BooleanField(verbose_name="发布内容",default=True)
+    ispublishprod=models.BooleanField(verbose_name="发布产品",default=True)
+    isupfile=models.BooleanField(verbose_name="上传文件",default=True)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add="True")
 
  
     class Meta:
-        verbose_name="用户资料"
+        verbose_name="用户扩展"
         verbose_name_plural=verbose_name

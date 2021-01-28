@@ -70,7 +70,11 @@ def logOut(request):
     return redirect(request.META['HTTP_REFERER'])
 
 def logIn(request):
-    #catelist=cate.objects.all()
+    #是否开启用户登录
+    bconfigobj=bconfig.objects.filter(name="config").first()
+    if not bconfigobj.islogin:
+        msg="暂停用户登录"
+        return render(request, 'base.html', locals())
     # 判断是否已经登录
     if request.user.is_authenticated:
         return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -87,6 +91,12 @@ def logIn(request):
                     login(request, user)
                     #print("登录成功！",user)                    
                     request.session["username"]=username
+                    #增加用户扩展
+                    bconfigobj=bconfig.objects.filter(name="config").first()
+                    ret=userextend.objects.filter(user=user).get_or_create(
+                        user=user,
+                        storage=bconfigobj.totalsize,
+                    )
                     #print(request.session["username"])
                     #response.set_cookie('username',username) #使用response（用户自己电脑）保存的cookie来验证用户登录
                     return redirect(request.session['login_from'])
@@ -99,12 +109,15 @@ def logIn(request):
 
 @csrf_exempt
 def register(request):
+    #是否开启用户注册
+    bconfigobj=bconfig.objects.filter(name="config").first()
+    if not bconfigobj.isregister:
+        msg="暂停用户注册"
+        return render(request, 'base.html', locals())
+
     if request.method == 'GET':
         request.session['login_from'] = request.META.get('HTTP_REFERER', '/')
         return render(request, 'register.html', locals())
-        #暂停用户注册
-        #msg="暂停用户注册"
-        #return render(request, 'base.html', locals())
     elif request.method == 'POST':
         # 接收表单数据
         username = request.POST.get("username", '')
@@ -319,6 +332,8 @@ def global_params(request):
 
 #首页
 def index(request):
+    #创建默认配置记录
+    ret=bconfig.objects.filter(name="config").get_or_create(name="config")
 
     #bflag=False #关闭开启线程审核封面图像
     bcon=bconfig.objects.filter(name='config').first()
@@ -560,7 +575,14 @@ def editnews(request,newsid):
 @csrf_exempt
 @login_required
 def savenews(request):    
-    #catelist=cate.objects.all()
+    #是否开启用户发布内容
+    if request.session.get('username'):
+        username=request.session.get('username')
+        user=User.objects.get(username=username)        
+        userexobj=userextend.objects.get(user=user)    
+        if not userexobj.ispublishnews:
+            msg="暂停用户发布内容"
+            return render(request, 'base.html', locals())
     if request.method == 'POST':
         form = newsform(request.POST,request.FILES)
         if form.is_valid():
@@ -651,10 +673,10 @@ def getfile(request):
     if request.session.get('username'):
         username=request.session.get('username')
         user=User.objects.get(username=username)
-        ret=userextend.objects.get_or_create(
-            user=user,
-        )
-        userexobj=userextend.objects.get(user=user)
+        userexobj=userextend.objects.filter(user=user).first()
+        if not userexobj.isupfile:
+            msg="上传文件暂时关闭"
+            return render(request, 'base.html', locals())    
         remainstorage=userexobj.storage
         if remainstorage <=0:
             msg="存储空间已满，删除文件以释放空间！"
@@ -786,7 +808,13 @@ def productdetail(request,productid):
 @csrf_exempt
 @login_required
 def saveproduct(request):    
-    #catelist=cate.objects.all()
+    #是否开启用户发布产品
+    username=request.session.get("username")
+    user=User.objects.get(username=username)
+    userexobj=userextend.objects.filter(user=user).first()
+    if not userexobj.ispublishprod:
+        msg="暂停用户发布产品"
+        return render(request, 'base.html', locals())
     if request.method == 'POST':
         form = productform(request.POST,request.FILES )
         if form.is_valid():

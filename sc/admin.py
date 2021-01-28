@@ -14,11 +14,11 @@ admin.site.site_header = "控制台"
     #fields=('title', 'status', )
 #网站配置
 class bconfigadmin(admin.ModelAdmin):
-    list_display=['id','name','isimgaudit','isspider','ismsg','ismsgaudit','isimgai']
+    list_display=['id','name','isimgaudit','isspider','ismsg','ismsgaudit','isimgai','islogin','isregister','totalsize']
 
 #用户扩展资料
 class  userextendadmin(admin.ModelAdmin):
-    list_display=['id','user','storage']
+    list_display=['id','user','storage','ispublishnews','ispublishprod','isupfile']
     list_per_page=20
 
 #分类

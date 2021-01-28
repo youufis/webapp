@@ -5,3 +5,4 @@ baidu-aip
 pandas
 bs4
 lxml
+django-simpleui

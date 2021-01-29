@@ -578,8 +578,8 @@ def savenews(request):
     #是否开启用户发布内容
     if request.session.get('username'):
         username=request.session.get('username')
-        user=User.objects.get(username=username)        
-        userexobj=userextend.objects.get(user=user)    
+        user=User.objects.get(username=username)      
+        userexobj=userextend.objects.filter(user=user).first()
         if not userexobj.ispublishnews:
             msg="暂停用户发布内容"
             return render(request, 'base.html', locals())
@@ -738,9 +738,11 @@ def delfile(request,fileid):
         #删除文件，释放空间
         size=fobj.size
         ret=userextend.objects.filter(user=user).update(storage=F('storage')+size)
-        f=os.path.join(settings.MEDIA_ROOT,fobj.username,fobj.name)
-        if os.path.exists(f) :
-            os.remove(f)
+        f=os.path.join(settings.MEDIA_ROOT,fobj.file.name)  
+        #print(f)     
+        if os.path.exists(f) :      
+            os.remove(f)        
+
         ret=userfile.objects.filter(id=fileid).delete()
         
     return redirect('/userfiles/')
@@ -919,4 +921,6 @@ def signbook(request):
             return render(request,"signbook.html",locals())
     else:
         return render(request,"signbook.html",locals())
-####################################################################################################
+###################################################################################
+
+

@@ -96,11 +96,20 @@ class auditimgadmin(admin.ModelAdmin):
     list_display=['id','imgname']
     list_per_page = 20
 
+#用户文件分类
+class filecateadmin(admin.ModelAdmin):
+    list_display=['id','name','cate']
+    list_per_page=20
 
 #用户上传文件信息
 class userfileadmin(admin.ModelAdmin):
-    list_display=['id','username',"name","file","create_time"]
+    list_display=['id','username',"name","cate","file","size","create_time"]
     list_per_page = 20
+    list_filter=('cate','size') #过滤选项
+    ordering=('-id','username','cate','size') # 排序字段
+
+    # 搜索
+    search_fields = ['username','cate','name'] 
 
 #产品类别
 class productcateadmin(admin.ModelAdmin):
@@ -183,4 +192,5 @@ admin.site.register(productcate,productcateadmin)
 admin.site.register(msgbook,msgbookadmin)
 admin.site.register(bconfig,bconfigadmin)
 admin.site.register(userextend,userextendadmin)
+admin.site.register(filecate,filecateadmin)
 

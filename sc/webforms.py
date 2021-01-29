@@ -27,6 +27,8 @@ class newsform(forms.Form):
 
 #用户上传文件
 class fileform(forms.Form):
+    catelist=filecate.objects.filter(cate__isnull=True)
+    cate=forms.ModelChoiceField(queryset=catelist,label="文件分类",initial=catelist.first().name)   
     file=forms.FileField(label="文件上传：")
 
 #普通用户发布和修改产品表单

@@ -698,6 +698,7 @@ def getfile(request):
                     userfile.objects.create(
                         username= request.session["username"],
                         name=data["file"].name,
+                        cate=data["cate"],
                         file=data["file"],
                         size=f.size
                     )

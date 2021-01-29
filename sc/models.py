@@ -69,6 +69,16 @@ class newshits(models.Model):
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
 
    
+#文件分类
+class filecate(models.Model):
+    name= models.CharField(default="",max_length=30,verbose_name="类别名")   
+    cate=models.ForeignKey('self',null=True,blank=True,verbose_name="父分类", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name = "文件类别"
+        verbose_name_plural = verbose_name
 
 #让上传的文件路径动态地与user的名字有关
 def upload_to(instance,filename):
@@ -76,7 +86,8 @@ def upload_to(instance,filename):
 #用户单独上传文件管理
 class userfile(models.Model):
     username = models.CharField(verbose_name="用户名",max_length=50)
-    name = models.CharField(max_length=150,null=True)
+    name = models.CharField(max_length=150,verbose_name="文件名",null=True)
+    cate=models.ForeignKey(filecate,verbose_name="分类",null=True,blank=True,on_delete=models.CASCADE)
     file=models.FileField(verbose_name="文件",upload_to=upload_to)
     size=models.IntegerField(verbose_name="大小",blank=True,null=True)
     create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
@@ -86,6 +97,7 @@ class userfile(models.Model):
     class Meta:
         verbose_name="用户文件"
         verbose_name_plural=verbose_name
+
 
 
 #产品类别

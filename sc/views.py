@@ -93,10 +93,12 @@ def logIn(request):
                     request.session["username"]=username
                     #增加用户扩展
                     bconfigobj=bconfig.objects.filter(name="config").first()
-                    ret=userextend.objects.filter(user=user).get_or_create(
-                        user=user,
-                        storage=bconfigobj.totalsize,
-                    )
+                    userexobj=userextend.objects.filter(user=user)
+                    if not userexobj.exists():
+                        ret=userextend.objects.filter(user=user).create(
+                            user=user,
+                            storage=bconfigobj.totalsize,
+                        )
                     #print(request.session["username"])
                     #response.set_cookie('username',username) #使用response（用户自己电脑）保存的cookie来验证用户登录
                     return redirect(request.session['login_from'])

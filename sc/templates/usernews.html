@@ -2,8 +2,13 @@
 {% block title %} {{username}} -内容管理 {% endblock %}
 {% block mainbody %}
 
-<div class="row clearfix">
+<div class="row clearfix">    
     <div class="col-md-12 column">
+        <form action=" /searchnews/" method="post">
+            {% csrf_token %}
+            <input type="text" placeholder="标题关键词" name="q">
+            <input type="submit" value="搜索">
+        </form>
         <table class="table table-bordered">
             <thead>
                 <tr>

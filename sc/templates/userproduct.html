@@ -5,6 +5,11 @@
 
 <div class="row clearfix">
     <div class="col-md-12 column">
+        <form action=" /searchprod/" method="post">
+            {% csrf_token %}
+            <input type="text" placeholder="产品名关键词" name="q">
+            <input type="submit" value="搜索">
+        </form>
         <table class="table table-bordered">
             <thead>
                 <tr>

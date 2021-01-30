@@ -496,14 +496,51 @@ def newsdetail(request,newsid):
     return render(request, "newsdetail.html", locals())
 
 #############搜索###############################################################        
-#标题搜索
+#标题内容全局搜索
 def search(request):
+    ctx ={}
+    res=""
+    if request.POST:
+        ctx['keywords'] = request.POST['q']
+        res=ctx['keywords']
+    newslist=getPage(request,news.objects.filter(title__contains= res).order_by("-create_time"),10)
+    return render(request,"result.html",locals())
+#用户按标题搜索自己的发布内容
+def searchnews(request):
+    ctx ={}
+    res=""
+    if request.POST:
+        ctx['keywords'] = request.POST['q']
+        res=ctx['keywords']
+    if request.session.get("username"):
+        username=request.session.get("username")
+        print(username,res)
+        userobj=User.objects.filter(username=username).first()
+        newslist=getPage(request,news.objects.filter(user=userobj,title__contains= res).order_by("-create_time"),10)
+    return render(request,"usernews.html",locals())
+#用户按文件名搜索自己的文件
+def searchfile(request):
+    ctx ={}
+    res=""
+    if request.POST:
+        ctx['keywords'] = request.POST['q']
+        res=ctx['keywords']
+    if request.session.get("username"):
+        username=request.session.get("username")        
+        newslist=getPage(request,userfile.objects.filter(username=username,name__contains= res).order_by("-create_time"),10)
+    return render(request,"userfiles.html",locals())
+#用户按产品名搜索产品
+def searchprod(request):
     ctx ={}
     if request.POST:
         ctx['keywords'] = request.POST['q']
     res=ctx['keywords']
-    newslist=getPage(request,news.objects.filter(title__contains= ctx['keywords']).order_by("-create_time"),10)
-    return render(request,"result.html",locals())
+    if request.session.get("username"):
+        username=request.session.get("username")
+        userobj=User.objects.filter(username=username).first()
+    newslist=getPage(request,product.objects.filter(user=userobj,name__contains= res).order_by("-create_time"),10)
+    return render(request,"userproduct.html",locals())
+
 
 #############excel批量导入用户####################################################
 #excel批量导入用户
@@ -544,6 +581,7 @@ def uploadxls(request):
 #普通用户内容页
 @login_required
 def usernews(request):    
+
     if request.session.get('username'):
         username= request.session["username"]
         userobj=User.objects.get(username=username)

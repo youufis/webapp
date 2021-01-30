@@ -47,4 +47,7 @@ urlpatterns = [
     path('productcate/<cateid>',views.pcate,name="productcate"),
     path('addproduct/',views.saveproduct,name="addproduct"),
     path('signbook/',views.signbook,name="signbook"),
+    path('searchnews/',views.searchnews,name="searchnews"),
+    path('searchfile/',views.searchfile,name="searchfile"),
+    path('searchprod/',views.searchprod,name="searchprod"),
 ]

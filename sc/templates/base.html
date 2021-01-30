@@ -24,7 +24,12 @@
 	<script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/jquery.htmlClean.js' %}""></script>
 	<script type=" text/javascript" src="{% static 'js/scripts.min.js' %}"></script>
-
+	<script type=" text/javascript" src="{% static 'js/bootstrap.viewer.js' %}"></script>
+	<script type="text/javascript">
+		$(function () {
+			$('.viewer').bootstrapViewer();//The default image source file path is the src attribute of the img tag.
+		})
+	</script>
 <body>
 	<div class="container">
 		<div class="row clearfix">

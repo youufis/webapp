@@ -10,7 +10,9 @@
 						产品介绍 {% if product_hits %}  ——点击量：{{product_hits}}{% endif%}
 						<div class="row clearfix">
 							<div class="col-md-5 column">
+								{% if productobj.img %}
 								<img  width=400px height=400px src="/media/{{productobj.img}}" class="img-thumbnail" />
+								{% endif %}
 							</div>
 							<div class="col-md-7 column">
 								产品名称：{{productobj.name}}<br><br>

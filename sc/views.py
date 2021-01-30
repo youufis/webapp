@@ -532,13 +532,16 @@ def searchfile(request):
 #用户按产品名搜索产品
 def searchprod(request):
     ctx ={}
+    res=""
     if request.POST:
         ctx['keywords'] = request.POST['q']
-    res=ctx['keywords']
+        res=ctx['keywords']
     if request.session.get("username"):
         username=request.session.get("username")
         userobj=User.objects.filter(username=username).first()
-    newslist=getPage(request,product.objects.filter(user=userobj,name__contains= res).order_by("-create_time"),10)
+        newslist=getPage(request,product.objects.filter(user=userobj,name__contains= res).order_by("-create_time"),10)
+    else:
+        newslist=getPage(request,product.objects.filter(name__contains= res).order_by("-create_time"),10)
     return render(request,"userproduct.html",locals())
 
 

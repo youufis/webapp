@@ -316,12 +316,13 @@ def global_params(request):
         #未审核和最新留言信息
     newsmsg=news.objects.filter(status="未审核").count()
     pmsg=product.objects.filter(status="未审核").count()
+    '''
     now_time=datetime.datetime.now()
     day_num=now_time.isoweekday()
     monday=(now_time-datetime.timedelta(days=day_num))
     bmsg=msgbook.objects.filter(create_time__range=(monday,now_time)).count()#本周
     #bmsg=msgbook.objects.filter(create_time__month=now_time.month).count()#本月  
-
+    '''
     return {
         "newscatelist":newscatelist,
         "st":st,
@@ -329,7 +330,7 @@ def global_params(request):
         "pst":pst,
         "newsmsg":newsmsg,
         "pmsg":pmsg,
-        "bmsg":bmsg,
+        #"bmsg":bmsg,
         }
 
 #首页
@@ -532,7 +533,7 @@ def searchfile(request):
 #用户按产品名搜索产品
 def searchprod(request):
     ctx ={}
-    res=""
+    res=""    
     if request.POST:
         ctx['keywords'] = request.POST['q']
         res=ctx['keywords']

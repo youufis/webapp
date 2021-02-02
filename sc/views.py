@@ -349,8 +349,7 @@ def index(request):
     clientip=get_client_ip(request)
     #来访ip记数
     if ipinfo.objects.filter(ipaddr__in=[clientip]):
-       res = ipinfo.objects.update(num=F("num")+1,create_time=datetime.datetime.now())
-       #create_time不会自动更新
+       res = ipinfo.objects.filter(ipaddr__in=[clientip]).update(num=F("num")+1,create_time=datetime.datetime.now())
     else:
         res=ipinfo.objects.create(
             ipaddr=clientip,

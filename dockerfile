@@ -5,6 +5,7 @@ FROM python:3.7
  # 复制当前代码文件到容器中 /app
 COPY . /app
  # 安装所需的包
+ #pip freeze > requirements.txt
 RUN pip install -r requirements.txt -i https://pypi.douban.com/simple
  # Run app.py when the container launches
 CMD [ "python", "./manage.py", "runserver", "0.0.0.0:8000"]

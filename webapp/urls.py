@@ -19,10 +19,12 @@ from sc import views
 from django.views.static import serve
 from webapp.settings import MEDIA_ROOT
 from webapp.settings import STATIC_ROOT
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': STATIC_ROOT}),
+    re_path(r'^favicon.ico$',RedirectView.as_view(url=r'static/images/favicon.ico')), 
     path('ueditor/', include('DjangoUeditor.urls')),
     path('admin/', admin.site.urls),
     path('',views.index,name='index'),

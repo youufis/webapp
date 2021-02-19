@@ -98,7 +98,9 @@ class userfile(models.Model):
         verbose_name="用户文件"
         verbose_name_plural=verbose_name
 
-
+class userimg(models.Model):
+    image=models.ImageField(verbose_name="图像",upload_to="pic/")
+    create_time=models.DateTimeField(verbose_name="时间",auto_now_add=True)
 
 #产品类别
 class productcate(models.Model):   

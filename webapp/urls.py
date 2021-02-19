@@ -54,4 +54,6 @@ urlpatterns = [
     path('searchnews/',views.searchnews,name="searchnews"),
     path('searchfile/',views.searchfile,name="searchfile"),
     path('searchprod/',views.searchprod,name="searchprod"),
+    path('snap/',views.snap,name="snap"),
+    path("uploadimg/",views.uploadimg,name="uploadimg"),
 ]

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %} 拍照 {% endblock %}
+{% block mainbody %}
+<!--video用于显示媒体设备的视频流，自动播放-->
+<div class="row clearfix">
+    <div class="col-md-6 column"><video id="video" autoplay style="width: 640px;height: 480px"></video><!--拍照按钮-->
+            <div>
+                <button id="capture">拍照</button><button id="upload">上传</button>
+            </div>
+		</div>
+		<div class="col-md-6 column"><!--描绘video截图-->
+            <canvas id="canvas" width="640" height="480"></canvas>
+		</div>
+	</div>
+
+<script>
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var capture = document.getElementById('capture');
+    var context = canvas.getContext('2d');
+    function getUserMediaToPhoto(constraints, success, error) {
+        if (navigator.mediaDevices.getUserMedia) {
+            //最新标准API
+            navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+        } else if (navigator.webkitGetUserMedia) {
+            //webkit核心浏览器
+            navigator.webkitGetUserMedia(constraints, success, error);
+        } else if (navigator.mozGetUserMedia) {
+            //firefox浏览器
+            navigator.mozGetUserMedia(constraints, success, error);
+        } else if (navigator.getUserMedia) {
+            //旧版API
+            navigator.getUserMedia(constraints, success, error);
+        }
+    }
+    //成功回调函数
+    function success(stream) {
+        //兼容webkit核心浏览器
+        var CompatibleURL = window.URL || window.webkitURL;
+        //将视频流转化为video的源
+        //video.src = CompatibleURL.createObjectURL(stream);
+        video.srcObject = stream;
+        video.play();//播放视频
+    }
+    function error(error) {
+        console.log('访问用户媒体失败：', error.name, error.message);
+    }
+    if (navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia) {
+        getUserMediaToPhoto({ video: { width: 640, height: 480 } }, success, error);
+    } else {
+        alert('你的浏览器不支持访问用户媒体设备');
+    }
+   
+    function b64ToUint8Array(b64Image) {
+        var img = atob(b64Image.split(',')[1]);
+        var img_buffer = [];
+        var i = 0;
+        while (i < img.length) {
+            img_buffer.push(img.charCodeAt(i));
+            i++;
+        }
+        return new Uint8Array(img_buffer);
+    }
+    capture.addEventListener('click', function () {
+        // 将video画面描绘在canvas画布上
+        context.drawImage(video, 0, 0, 640, 480);
+    })
+    upload.addEventListener('click', function () {
+        var b64Image = canvas.toDataURL('image/jpeg');
+        var u8Image = b64ToUint8Array(b64Image);
+        var formData = new FormData();
+        var blob= new Blob([u8Image], { type: "image/jpg" });
+        var file = new File([blob], "snap.jpg", { type: "image/jpg" });
+        //formData.append("image", new Blob([u8Image], { type: "image/jpg" }));
+        //formData.append("image", file);
+        formData.append("flag","issnap");
+        formData.append("file", file);
+        formData.append("csrfmiddlewaretoken",'{{ csrf_token }}')
+        var xhr = new XMLHttpRequest();
+        //xhr.open("POST", "/uploadimg/", true);
+        xhr.open("POST", "/getfile/", true);
+        xhr.send(formData);
+    })
+</script>
+
+
+
+{% endblock %}

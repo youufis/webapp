@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 import os
 from .models import *
 from django.conf import settings
@@ -348,8 +349,9 @@ def index(request):
     hostip=get_host_ip()
     clientip=get_client_ip(request)
     #来访ip记数
+    
     if ipinfo.objects.filter(ipaddr__in=[clientip]):
-       res = ipinfo.objects.filter(ipaddr__in=[clientip]).update(num=F("num")+1,create_time=datetime.datetime.now())
+       res = ipinfo.objects.filter(ipaddr__in=[clientip]).update(num=F("num")+1,create_time=timezone.now())
     else:
         res=ipinfo.objects.create(
             ipaddr=clientip,
@@ -728,8 +730,9 @@ def getfile(request):
     if request.method == 'POST':
         form = fileform(request.POST, request.FILES )  # 有文件上传要传两个字段
         f=request.FILES['file']
-        #print(f.size)
-        if form.is_valid():
+        flag=request.POST.get("flag") #issnap 拍照上传
+        #print(f.name,f.size,flag)
+        if form.is_valid() or flag=="issnap":
             data=form.cleaned_data
             if request.session.get('username'):
                 ext=data["file"].name.split(".")[-1].lower()
@@ -739,14 +742,17 @@ def getfile(request):
                 else:
                     if not  os.path.exists(os.path.join(settings.MEDIA_ROOT,request.session["username"])):
                         os.makedirs(os.path.join(settings.MEDIA_ROOT,request.session["username"]))
+                    if flag=="issnap":
+                        cate=filecate.objects.all().first()
+                    else:
+                        cate=data["cate"]
                     userfile.objects.create(
                         username= request.session["username"],
                         name=data["file"].name,
-                        cate=data["cate"],
+                        cate=cate,
                         file=data["file"],
                         size=f.size
                     )
-                    #print(username,name)
                     size=data["file"].size
                     ret=userextend.objects.filter(user=user).update(storage=F('storage')-size)
                     messages.success(request,data["file"].name+'上传成功')
@@ -761,6 +767,31 @@ def getfile(request):
         #加载表单
         title="文件上传"
         form = fileform() 
+        return render(request,'webforms.html', {'form': form,"title":title})
+
+#上传图像
+def uploadimg(request):
+    if request.method == 'POST':
+        form = imgform(request.POST, request.FILES )  # 有文件上传要传两个字段
+        f=request.FILES['image']
+        #userimg.objects.get_or_create(image=f, )
+        if form.is_valid():
+            data=form.cleaned_data
+            userimg.objects.get_or_create(
+                image=data["image"],
+            )
+            messages.success(request,data["image"].name+'上传成功')
+            return render(request,'webforms.html', {'form': form}) #
+        else:
+            #print(form.errors)
+            clean_errors=form.errors.get("__all__")
+            #print(222,clean_errors)
+        return render(request,"webforms.html",{"form":form,"clean_errors":clean_errors})
+        
+    else:
+        #加载表单
+        title="图像上传"
+        form = imgform() 
         return render(request,'webforms.html', {'form': form,"title":title})
 
 #用户文件
@@ -966,5 +997,9 @@ def signbook(request):
     else:
         return render(request,"signbook.html",locals())
 ###################################################################################
+def snap(request):
+    img="本地拍照上传"
+    return render(request,"snap.html",locals())
+
 
 

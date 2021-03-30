@@ -381,7 +381,7 @@ def index(request):
         #for f in os.listdir(fpath):
             #print(f)
 
-    #最新封面top10随机取3
+    #最新封面top20随机取3
     fnews=[]
     fnamenewsobj20=news.objects.filter(Q(img__isnull=False) & Q(status='已审核')).order_by("-id")[:20]
     #img_isnull=False 并不能判断图像字段为空，需要bool(boolobj.img)判断一次

@@ -388,7 +388,7 @@ def index(request):
     for r in fnamenewsobj20:
         if bool(r.img):
             fnews.append(r)
-    fnamenewsobj=random.sample(fnews,3)
+    fnamenewsobj=random.sample(fnews,min(len(fnews),3))#最新封面图片最小数
     
     #取出所有类别
     catelist=cate.objects.filter(pcate__isnull=False)

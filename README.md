@@ -83,5 +83,3 @@
 author
 
 QQ:10082823
-
-github同步

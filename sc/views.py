@@ -677,7 +677,8 @@ def friendlylink():
     f1 = requests.get(url1)                 #Get该网页从而获取该html内容
     f1.encoding="utf-8"
     soup1 = BeautifulSoup(f1.text, "lxml")  #用lxml解析器解析该网页的内容, 好像f.text也是返回的html
-    content1 = soup1.find_all('ul',class_="news-2" ) 
+    print(soup1)
+    content1 = soup1.find_all('div',class_="left-content-1 marBot" ) #抓取内容 
      #第二次解析内容
     hreflist=content1[0].find_all("a")
     #print(hreflist)

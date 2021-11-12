@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from django.contrib.auth import login,logout
 from django.contrib.auth.models import User,Group
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger

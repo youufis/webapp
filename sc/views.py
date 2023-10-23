@@ -172,9 +172,9 @@ def imgtoaudit():
 def imgaudit(img):    
     from aip import AipContentCensor
     #可以自行百度ai申请
-    APP_ID = '23489175'
-    API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
-    SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
+    APP_ID = '**********'
+    API_KEY = '**********************'
+    SECRET_KEY = '*************************************'
     client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
     #result = client.textCensorUserDefined("测试文本") #文本审核
     imgpath=os.path.join(settings.MEDIA_ROOT,"images",img)    
@@ -187,9 +187,9 @@ def imgaudit(img):
 def txtaudit(cont):    
     from aip import AipContentCensor
     #可以自行百度ai申请
-    APP_ID = '23489175'
-    API_KEY = 'ur1buDW12v3KvxUCZoFnWQNm'
-    SECRET_KEY = 'iNIGdhkmlZka7ZgVwoZKOGmkS26umYpA'
+    APP_ID = '********************'
+    API_KEY = '*************************'
+    SECRET_KEY = '**********************************'
     client = AipContentCensor(APP_ID, API_KEY, SECRET_KEY)
     result = client.textCensorUserDefined(cont)
     #print(result)
@@ -199,9 +199,9 @@ def txtaudit(cont):
 def imgdetect(request,img):
     from aip import AipImageClassify
     """ 这里输入你创建应用获得的三个参数"""
-    APP_ID = '15279946'
-    API_KEY = 'gFT6Iim8OPT51HQFIyGOmIra'
-    SECRET_KEY = 'Afi8SoHMFWSKYzi1QD78giGMyakVtr3k'
+    APP_ID = '****************'
+    API_KEY = '*********************'
+    SECRET_KEY = '**************************'
     client = AipImageClassify(APP_ID, API_KEY, SECRET_KEY)
 
     imgpath=os.path.join(settings.MEDIA_ROOT,"images",img)
